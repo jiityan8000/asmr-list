@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="睡眠ASMR">
+<title>睡眠ASMR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0e14;
+    --surface: #13141c;
+    --surface2: #1a1b26;
+    --border: rgba(255,255,255,0.07);
+    --accent: #7c6aff;
+    --accent2: #c084fc;
+    --text: #e8e6f0;
+    --muted: #6b6880;
+    --star: #fbbf24;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 300;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  /* 背景の星くず */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 40% 60%, rgba(255,255,255,0.15) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 70%, rgba(255,255,255,0.25) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 85%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 55% 90%, rgba(255,255,255,0.1) 0%, transparent 100%),
+      radial-gradient(600px 400px at 30% 20%, rgba(124,106,255,0.06) 0%, transparent 70%),
+      radial-gradient(400px 600px at 80% 80%, rgba(192,132,252,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ヘッダー */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(13,14,20,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px 12px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .logo {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, #c084fc, #7c6aff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo span {
+    font-style: italic;
+    font-size: 13px;
+    -webkit-text-fill-color: var(--muted);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    margin-left: 6px;
+  }
+
+  .add-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(124,106,255,0.4);
+    background: rgba(124,106,255,0.12);
+    color: var(--accent);
+    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .add-btn:active { transform: scale(0.92); background: rgba(124,106,255,0.25); }
+
+  /* カテゴリタブ */
+  .category-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .category-scroll::-webkit-scrollbar { display: none; }
+
+  .cat-chip {
+    flex-shrink: 0;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .cat-chip.active {
+    border-color: rgba(124,106,255,0.6);
+    background: rgba(124,106,255,0.15);
+    color: var(--accent2);
+  }
+
+  /* メイン */
+  main {
+    position: relative;
+    z-index: 1;
+    padding: 16px 16px 100px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .empty-state .moon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 14px; line-height: 1.8; }
+
+  /* 動画カード */
+  .video-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .video-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .video-card:active { transform: scale(0.98); border-color: rgba(124,106,255,0.3); }
+
+  .thumb-wrap {
+    position: relative;
+    width: 120px;
+    flex-shrink: 0;
+  }
+  .thumb-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .skip-badge {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+  }
+
+  .card-info {
+    flex: 1;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 0;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    color: var(--text);
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .cat-tag {
+    font-size: 10px;
+    color: var(--accent2);
+    background: rgba(192,132,252,0.1);
+    border: 1px solid rgba(192,132,252,0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 4px;
+  }
+
+  .icon-btn {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .icon-btn:active { background: rgba(255,255,255,0.08); color: var(--text); }
+
+  /* モーダル */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .modal {
+    width: 100%;
+    background: var(--surface2);
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
+    border-top: 1px solid var(--border);
+    padding: 20px 20px 40px;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+    max-height: 90dvh;
+    overflow-y: auto;
+  }
+  .modal-overlay.open .modal {
+    transform: translateY(0);
+  }
+
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  input, select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus {
+    border-color: rgba(124,106,255,0.5);
+  }
+  input::placeholder { color: var(--muted); }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #7c6aff, #c084fc);
+    color: #fff;
+    font-size: 15px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: opacity 0.2s;
+  }
+  .submit-btn:active { opacity: 0.85; }
+
+  .cancel-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* 削除確認 */
+  .del-modal .modal-title { color: #f87171; }
+  .del-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(248,113,113,0.15);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: #f87171;
+    font-size: 15px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  /* カテゴリ管理 */
+  .cat-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .cat-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+  .cat-item button {
+    background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer;
+  }
+
+  /* 再生トースト */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(30,30,45,0.95);
+    border: 1px solid rgba(124,106,255,0.3);
+    color: var(--text);
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    z-index: 300;
+    opacity: 0;
+    transition: all 0.3s;
+    white-space: nowrap;
+    backdrop-filter: blur(10px);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .count-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    padding-left: 2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">睡眠 ASMR <span>おやすみリスト</span></div>
+    <div style="display:flex;gap:8px">
+      <button class="add-btn" onclick="openCatModal()" title="カテゴリ管理" style="font-size:16px">🏷</button>
+      <button class="add-btn" onclick="openAddModal()" title="動画追加">＋</button>
+    </div>
+  </div>
+  <div class="category-scroll" id="catTabs"></div>
+</header>
+
+<main id="main">
+  <div class="empty-state" id="emptyState">
+    <div class="moon">🌙</div>
+    <p>まだ動画が登録されていません<br>＋ボタンから追加してみましょう</p>
+  </div>
+  <div class="video-grid" id="videoGrid"></div>
+</main>
+
+<!-- 追加/編集モーダル -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">動画を追加</div>
+    <div class="form-group">
+      <label>YouTube URL</label>
+      <input type="url" id="inputUrl" placeholder="https://www.youtube.com/watch?v=..." inputmode="url">
+    </div>
+    <div class="form-group">
+      <label>動画タイトル</label>
+      <input type="text" id="inputTitle" placeholder="タイトルを入力">
+    </div>
+    <div class="row2">
+      <div class="form-group">
+        <label>スキップ（秒）</label>
+        <input type="number" id="inputSkip" placeholder="例: 30" inputmode="numeric" min="0">
+      </div>
+      <div class="form-group">
+        <label>カテゴリ</label>
+        <select id="inputCat"></select>
+      </div>
+    </div>
+    <button class="submit-btn" onclick="saveVideo()">保存する</button>
+    <button class="cancel-btn" onclick="closeModal('addModal')">キャンセル</button>
+  </div>
+</div>
+
+<!-- 削除確認モーダル -->
+<div class="modal-overlay del-modal" id="delModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">本当に削除しますか？</div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:4px" id="delTargetTitle"></p>
+    <button class="del-btn" onclick="confirmDelete()">削除する</button>
+    <button class="cancel-btn" onclick="closeModal('delModal')">キャンセル</button>
+  </div>
+</div>
+
+<!-- カテゴリ管理モーダル -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">カテゴリ管理</div>
+    <div class="cat-list" id="catList"></div>
+    <div class="form-group">
+      <label>新しいカテゴリ</label>
+      <input type="text" id="newCatInput" placeholder="例: 囁き系、環境音...">
+    </div>
+    <button class="submit-btn" onclick="addCategory()">追加する</button>
+    <button class="cancel-btn" onclick="closeModal('catModal')">閉じる</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'asmr_videos_v2';
+const CAT_KEY = 'asmr_cats_v2';
+
+let videos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let categories = JSON.parse(localStorage.getItem(CAT_KEY) || '["癒し系","囁き系","環境音","バイノーラル","その他"]');
+let currentCat = 'all';
+let editingId = null;
+let deletingId = null;
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
+  localStorage.setItem(CAT_KEY, JSON.stringify(categories));
+}
+
+function extractVideoId(url) {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('youtu.be')) return u.pathname.slice(1).split('?')[0];
+    return u.searchParams.get('v') || '';
+  } catch { return ''; }
+}
+
+function thumbUrl(videoId) {
+  return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+}
+
+function formatSkip(sec) {
+  if (!sec || sec <= 0) return null;
+  const m = Math.floor(sec / 60), s = sec % 60;
+  return m > 0 ? `${m}:${String(s).padStart(2,'0')}` : `0:${String(s).padStart(2,'0')}`;
+}
+
+function playVideo(v) {
+  const id = extractVideoId(v.url);
+  if (!id) { showToast('URLが無効です'); return; }
+  const skip = parseInt(v.skip) || 0;
+  const ytUrl = `https://www.youtube.com/watch?v=${id}${skip > 0 ? `&t=${skip}` : ''}`;
+  showToast(`${skip > 0 ? formatSkip(skip)+'から' : ''}再生します 🎧`);
+  setTimeout(() => { window.location.href = ytUrl; }, 500);
+}
+
+function renderCatTabs() {
+  const tabs = document.getElementById('catTabs');
+  const counts = { all: videos.length };
+  categories.forEach(c => counts[c] = videos.filter(v => v.cat === c).length);
+
+  tabs.innerHTML = [['all', `すべて (${counts.all})`], ...categories.map(c => [c, `${c} (${counts[c] || 0})`])]
+    .map(([val, label]) =>
+      `<button class="cat-chip ${currentCat === val ? 'active' : ''}" onclick="setCat('${val}')">${label}</button>`
+    ).join('');
+}
+
+function setCat(cat) {
+  currentCat = cat;
+  renderCatTabs();
+  renderVideos();
+}
+
+function renderVideos() {
+  const grid = document.getElementById('videoGrid');
+  const empty = document.getElementById('emptyState');
+  const filtered = currentCat === 'all' ? videos : videos.filter(v => v.cat === currentCat);
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map(v => {
+    const id = extractVideoId(v.url);
+    const skip = formatSkip(parseInt(v.skip));
+    return `
+    <div class="video-card" onclick='playVideo(${JSON.stringify(v).replace(/'/g, "&#39;")})'>
+      <div class="thumb-wrap">
+        <img src="${thumbUrl(id)}" alt="" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%2290%22><rect width=%22120%22 height=%2290%22 fill=%22%231a1b26%22/></svg>'">
+        ${skip ? `<div class="skip-badge">▶ ${skip}〜</div>` : ''}
+      </div>
+      <div class="card-info">
+        <div class="card-title">${escHtml(v.title || '（タイトルなし）')}</div>
+        <div class="card-meta">
+          <div class="cat-tag">${escHtml(v.cat || 'その他')}</div>
+          <div class="card-actions" onclick="event.stopPropagation()">
+            <button class="icon-btn" onclick="openEditModal('${v.id}')" title="編集">✏️</button>
+            <button class="icon-btn" onclick="openDelModal('${v.id}')" title="削除">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function renderCatSelect() {
+  const sel = document.getElementById('inputCat');
+  sel.innerHTML = categories.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+}
+
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modalTitle').textContent = '動画を追加';
+  document.getElementById('inputUrl').value = '';
+  document.getElementById('inputTitle').value = '';
+  document.getElementById('inputSkip').value = '';
+  renderCatSelect();
+  openModal('addModal');
+}
+
+function openEditModal(id) {
+  const v = videos.find(x => x.id === id);
+  if (!v) return;
+  editingId = id;
+  document.getElementById('modalTitle').textContent = '動画を編集';
+  document.getElementById('inputUrl').value = v.url || '';
+  document.getElementById('inputTitle').value = v.title || '';
+  document.getElementById('inputSkip').value = v.skip || '';
+  renderCatSelect();
+  document.getElementById('inputCat').value = v.cat || categories[0];
+  openModal('addModal');
+}
+
+function saveVideo() {
+  const url = document.getElementById('inputUrl').value.trim();
+  const title = document.getElementById('inputTitle').value.trim();
+  const skip = parseInt(document.getElementById('inputSkip').value) || 0;
+  const cat = document.getElementById('inputCat').value;
+
+  if (!url) { showToast('URLを入力してください'); return; }
+  if (!extractVideoId(url)) { showToast('YouTubeのURLを入力してください'); return; }
+
+  if (editingId) {
+    const idx = videos.findIndex(v => v.id === editingId);
+    if (idx >= 0) videos[idx] = { ...videos[idx], url, title, skip, cat };
+  } else {
+    videos.unshift({ id: Date.now().toString(), url, title, skip, cat });
+  }
+
+  save();
+  closeModal('addModal');
+  renderCatTabs();
+  renderVideos();
+  showToast(editingId ? '更新しました' : '追加しました 🌙');
+}
+
+function openDelModal(id) {
+  deletingId = id;
+  const v = videos.find(x => x.id === id);
+  document.getElementById('delTargetTitle').textContent = v?.title || '（タイトルなし）';
+  openModal('delModal');
+}
+
+function confirmDelete() {
+  videos = videos.filter(v => v.id !== deletingId);
+  save();
+  closeModal('delModal');
+  renderCatTabs();
+  renderVideos();
+  showToast('削除しました');
+}
+
+function openCatModal() {
+  renderCatList();
+  openModal('catModal');
+}
+
+function renderCatList() {
+  document.getElementById('catList').innerHTML = categories.map((c, i) =>
+    `<div class="cat-item">
+      <span>${escHtml(c)}</span>
+      <button onclick="deleteCategory(${i})">×</button>
+    </div>`
+  ).join('');
+}
+
+function addCategory() {
+  const val = document.getElementById('newCatInput').value.trim();
+  if (!val) return;
+  if (categories.includes(val)) { showToast('すでに存在します'); return; }
+  categories.push(val);
+  save();
+  document.getElementById('newCatInput').value = '';
+  renderCatList();
+  renderCatTabs();
+  showToast(`「${val}」を追加しました`);
+}
+
+function deleteCategory(i) {
+  if (videos.some(v => v.cat === categories[i])) {
+    showToast('この動画が使用中のカテゴリは削除できません');
+    return;
+  }
+  categories.splice(i, 1);
+  save();
+  renderCatList();
+  renderCatTabs();
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// オーバーレイタップで閉じる
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => {
+    if (e.target === el) closeModal(el.id);
+  });
+});
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// 初期表示
+renderCatTabs();
+renderVideos();
+</script>
+
+</body>
+</html>
