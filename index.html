@@ -411,6 +411,148 @@
     margin-bottom: 12px;
     padding-left: 2px;
   }
+
+  /* 同期 / バックアップモーダル */
+  .sync-status {
+    display: inline-block;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 0.04em;
+  }
+  .sync-status.syncing { color: var(--accent2); border-color: rgba(192,132,252,0.35); }
+  .sync-status.ok      { color: #6ee7b7; border-color: rgba(110,231,183,0.35); background: rgba(110,231,183,0.06); }
+  .sync-status.err     { color: #f87171; border-color: rgba(248,113,113,0.35); background: rgba(248,113,113,0.06); }
+
+  .sync-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 22px 0 18px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .sync-link {
+    display: inline-block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--accent2);
+    text-decoration: none;
+  }
+  .sync-link:active { opacity: 0.7; }
+
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0 14px;
+    font-size: 13px;
+    color: var(--text);
+  }
+  .toggle-row > label { margin: 0; text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--text); }
+
+  .toggle-switch {
+    width: 42px;
+    height: 24px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+  .toggle-switch:checked {
+    background: rgba(124,106,255,0.22);
+    border-color: rgba(124,106,255,0.5);
+  }
+  .toggle-switch:checked::after {
+    left: 21px;
+    background: var(--accent);
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 6px 0 4px;
+  }
+
+  .mini-btn {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .mini-btn:active { background: var(--surface); }
+  .mini-btn.primary {
+    background: rgba(124,106,255,0.15);
+    border-color: rgba(124,106,255,0.4);
+    color: var(--accent2);
+  }
+
+  .json-area {
+    width: 100%;
+    min-height: 80px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 11px;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    padding: 10px 12px;
+    resize: vertical;
+    margin-top: 8px;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .json-area:focus { border-color: rgba(124,106,255,0.5); }
+
+  .inline-select {
+    width: auto;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .warning {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-top: 18px;
+    padding: 10px 12px;
+    background: rgba(251,191,36,0.05);
+    border: 1px solid rgba(251,191,36,0.15);
+    border-radius: 8px;
+  }
 </style>
 </head>
 <body>
@@ -419,6 +561,7 @@
   <div class="header-top">
     <div class="logo">睡眠 ASMR <span>おやすみリスト</span></div>
     <div style="display:flex;gap:8px">
+      <button class="add-btn" onclick="openSyncModal()" title="同期 / バックアップ" style="font-size:16px">⚙</button>
       <button class="add-btn" onclick="openCatModal()" title="カテゴリ管理" style="font-size:16px">🏷</button>
       <button class="add-btn" onclick="openAddModal()" title="動画追加">＋</button>
     </div>
@@ -488,21 +631,341 @@
   </div>
 </div>
 
+<!-- 同期 / バックアップモーダル -->
+<div class="modal-overlay" id="syncModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">同期 / バックアップ</div>
+
+    <div class="section-label">クラウド同期 (GitHub Gist)</div>
+    <div id="syncStatus" class="sync-status">未設定</div>
+
+    <div class="form-group">
+      <label>Personal Access Token (scope: gist)</label>
+      <input type="password" id="syncPat" placeholder="ghp_..." autocomplete="off" spellcheck="false">
+      <a class="sync-link" href="https://github.com/settings/tokens/new?scopes=gist&description=ASMR%20Sync" target="_blank" rel="noopener">▸ トークンを発行する (新規タブ)</a>
+    </div>
+
+    <div class="form-group">
+      <label>Gist ID</label>
+      <input type="text" id="syncGistId" placeholder="既存IDを入力 or 新規作成ボタン" autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="toggle-row">
+      <label for="syncAuto">自動同期</label>
+      <input type="checkbox" id="syncAuto" class="toggle-switch">
+    </div>
+
+    <div class="btn-row">
+      <button class="mini-btn" onclick="handleCreateGist()">Gist 新規作成</button>
+      <button class="mini-btn" onclick="handleTestConnection()">接続テスト</button>
+      <button class="mini-btn primary" onclick="handleSyncNow()">今すぐ同期</button>
+    </div>
+
+    <button class="submit-btn" onclick="saveSyncSettings(true)">設定を保存</button>
+
+    <div class="sync-divider"></div>
+
+    <div class="section-label">バックアップ (手動 Export / Import)</div>
+
+    <button class="mini-btn" style="width:100%" onclick="exportJson()">JSON をダウンロード</button>
+    <textarea id="exportPreview" class="json-area" placeholder="エクスポート結果がここに表示されます (コピー可)" readonly></textarea>
+
+    <div style="margin-top:18px">
+      <label style="display:block;margin-bottom:6px">JSON インポート</label>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+      <textarea id="importText" class="json-area" placeholder="ここに JSON を貼り付け、または下のボタンでファイル選択..."></textarea>
+      <div class="toggle-row" style="padding:10px 0 6px">
+        <label>適用モード</label>
+        <select id="importMode" class="inline-select">
+          <option value="replace">置き換え</option>
+          <option value="merge">マージ (id基準)</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="mini-btn" onclick="document.getElementById('importFile').click()">ファイルを選択</button>
+        <button class="mini-btn primary" onclick="importJsonFromText()">テキストから取り込む</button>
+      </div>
+    </div>
+
+    <div class="warning">
+      ⚠ Personal Access Token はこの端末のローカルストレージにのみ保存されます。共有端末では使用しないでください。
+    </div>
+
+    <button class="cancel-btn" onclick="closeModal('syncModal')">閉じる</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 const STORAGE_KEY = 'asmr_videos_v2';
 const CAT_KEY = 'asmr_cats_v2';
+const META_KEY = 'asmr_meta_v1';
+const SYNC_KEY = 'asmr_sync_v1';
+const GIST_FILENAME = 'asmr-list.json';
+const PUSH_DEBOUNCE_MS = 1500;
 
 let videos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 let categories = JSON.parse(localStorage.getItem(CAT_KEY) || '["癒し系","囁き系","環境音","バイノーラル","その他"]');
+let meta = JSON.parse(localStorage.getItem(META_KEY) || '{}');
+let syncCfg = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
 let currentCat = 'all';
 let editingId = null;
 let deletingId = null;
+let pushTimer = null;
 
 function save() {
+  meta.updatedAt = new Date().toISOString();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
   localStorage.setItem(CAT_KEY, JSON.stringify(categories));
+  localStorage.setItem(META_KEY, JSON.stringify(meta));
+  if (syncCfg.autoSync && syncCfg.pat && syncCfg.gistId) schedulePush();
+}
+
+function persistSyncCfg() {
+  localStorage.setItem(SYNC_KEY, JSON.stringify(syncCfg));
+}
+
+function schedulePush() {
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    pushToGist().catch(e => setStatus('err', e.message));
+  }, PUSH_DEBOUNCE_MS);
+}
+
+async function ghApi(method, path, body) {
+  if (!syncCfg.pat) throw new Error('PAT 未設定');
+  const res = await fetch(`https://api.github.com${path}`, {
+    method,
+    headers: {
+      'Authorization': `Bearer ${syncCfg.pat}`,
+      'Accept': 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(body ? { 'Content-Type': 'application/json' } : {})
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.json()).message || ''; } catch {}
+    throw new Error(`${res.status} ${detail || res.statusText}`);
+  }
+  return res.json();
+}
+
+function buildPayload() {
+  return {
+    version: 1,
+    videos,
+    categories,
+    updatedAt: meta.updatedAt || new Date().toISOString()
+  };
+}
+
+async function pushToGist() {
+  if (!syncCfg.gistId) throw new Error('Gist ID 未設定');
+  setStatus('syncing');
+  await ghApi('PATCH', `/gists/${syncCfg.gistId}`, {
+    files: { [GIST_FILENAME]: { content: JSON.stringify(buildPayload(), null, 2) } }
+  });
+  syncCfg.lastSyncedAt = new Date().toISOString();
+  persistSyncCfg();
+  setStatus('ok');
+}
+
+async function pullFromGist() {
+  if (!syncCfg.gistId) throw new Error('Gist ID 未設定');
+  setStatus('syncing');
+  const data = await ghApi('GET', `/gists/${syncCfg.gistId}`);
+  const file = data.files && data.files[GIST_FILENAME];
+  if (!file) throw new Error(`Gist に ${GIST_FILENAME} が見つかりません`);
+  let content = file.content;
+  if (file.truncated && file.raw_url) {
+    const r = await fetch(file.raw_url);
+    if (!r.ok) throw new Error(`raw fetch ${r.status}`);
+    content = await r.text();
+  }
+  return JSON.parse(content);
+}
+
+async function createGist() {
+  setStatus('syncing');
+  const res = await ghApi('POST', '/gists', {
+    description: 'ASMR Sleep Playlist sync',
+    public: false,
+    files: { [GIST_FILENAME]: { content: JSON.stringify(buildPayload(), null, 2) } }
+  });
+  syncCfg.gistId = res.id;
+  syncCfg.autoSync = true;
+  syncCfg.lastSyncedAt = new Date().toISOString();
+  persistSyncCfg();
+  setStatus('ok');
+  return res.id;
+}
+
+async function testConnection() {
+  setStatus('syncing');
+  await ghApi('GET', '/user');
+  setStatus('ok');
+}
+
+function applyRemote(remote) {
+  if (Array.isArray(remote.videos)) videos = remote.videos;
+  if (Array.isArray(remote.categories) && remote.categories.length) categories = remote.categories;
+  meta.updatedAt = remote.updatedAt || new Date().toISOString();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
+  localStorage.setItem(CAT_KEY, JSON.stringify(categories));
+  localStorage.setItem(META_KEY, JSON.stringify(meta));
+  renderCatTabs();
+  renderVideos();
+}
+
+async function loadSync() {
+  if (!syncCfg.pat || !syncCfg.gistId) { setStatus(null); return; }
+  try {
+    const remote = await pullFromGist();
+    const localTs = meta.updatedAt || '';
+    const remoteTs = remote.updatedAt || '';
+    if (remoteTs && remoteTs > localTs) {
+      applyRemote(remote);
+      showToast('リモートから取得しました 🌙');
+    } else if (localTs && localTs > remoteTs) {
+      await pushToGist();
+      showToast('ローカルを同期しました');
+    }
+    syncCfg.lastSyncedAt = new Date().toISOString();
+    persistSyncCfg();
+    setStatus('ok');
+  } catch (e) {
+    setStatus('err', e.message);
+  }
+}
+
+function setStatus(kind, msg) {
+  const el = document.getElementById('syncStatus');
+  if (!el) return;
+  el.classList.remove('ok', 'err', 'syncing');
+  if (kind === 'syncing') {
+    el.classList.add('syncing');
+    el.textContent = '同期中…';
+  } else if (kind === 'ok') {
+    el.classList.add('ok');
+    const t = syncCfg.lastSyncedAt ? new Date(syncCfg.lastSyncedAt) : new Date();
+    const hh = String(t.getHours()).padStart(2, '0');
+    const mm = String(t.getMinutes()).padStart(2, '0');
+    el.textContent = `同期済み ${hh}:${mm}`;
+  } else if (kind === 'err') {
+    el.textContent = `エラー: ${msg || ''}`.slice(0, 80);
+    el.classList.add('err');
+  } else {
+    el.textContent = (syncCfg.pat && syncCfg.gistId) ? '待機中' : '未設定';
+  }
+}
+
+function openSyncModal() {
+  document.getElementById('syncPat').value = syncCfg.pat || '';
+  document.getElementById('syncGistId').value = syncCfg.gistId || '';
+  document.getElementById('syncAuto').checked = syncCfg.autoSync !== false;
+  document.getElementById('exportPreview').value = '';
+  document.getElementById('importText').value = '';
+  setStatus(null);
+  if (syncCfg.lastSyncedAt && syncCfg.pat && syncCfg.gistId) setStatus('ok');
+  openModal('syncModal');
+}
+
+function readSyncForm() {
+  syncCfg.pat = document.getElementById('syncPat').value.trim();
+  syncCfg.gistId = document.getElementById('syncGistId').value.trim();
+  syncCfg.autoSync = document.getElementById('syncAuto').checked;
+  persistSyncCfg();
+}
+
+function saveSyncSettings(close) {
+  readSyncForm();
+  showToast('設定を保存しました');
+  if (close) closeModal('syncModal');
+}
+
+async function handleCreateGist() {
+  readSyncForm();
+  if (!syncCfg.pat) { showToast('先に PAT を入力してください'); return; }
+  try {
+    const id = await createGist();
+    document.getElementById('syncGistId').value = id;
+    document.getElementById('syncAuto').checked = true;
+    showToast('Gist を作成しました 🌙');
+  } catch (e) {
+    setStatus('err', e.message);
+    showToast('作成失敗: ' + e.message);
+  }
+}
+
+async function handleTestConnection() {
+  readSyncForm();
+  try {
+    await testConnection();
+    showToast('接続OK');
+  } catch (e) {
+    setStatus('err', e.message);
+    showToast('接続失敗: ' + e.message);
+  }
+}
+
+async function handleSyncNow() {
+  readSyncForm();
+  if (!syncCfg.pat || !syncCfg.gistId) { showToast('PAT と Gist ID を入力してください'); return; }
+  await loadSync();
+  if (!document.getElementById('syncStatus').classList.contains('err')) {
+    showToast('同期しました');
+  }
+}
+
+function exportJson() {
+  const payload = { version: 1, videos, categories, exportedAt: new Date().toISOString() };
+  const text = JSON.stringify(payload, null, 2);
+  const blob = new Blob([text], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  a.href = url;
+  a.download = `asmr-list-${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 100);
+  document.getElementById('exportPreview').value = text;
+  showToast('エクスポートしました');
+}
+
+function importJsonFromText() {
+  const text = document.getElementById('importText').value.trim();
+  if (!text) { showToast('JSON を貼り付けてください'); return; }
+  applyImport(text, document.getElementById('importMode').value);
+}
+
+function applyImport(text, mode) {
+  let parsed;
+  try { parsed = JSON.parse(text); }
+  catch { showToast('JSON の形式が不正です'); return; }
+  if (!parsed || !Array.isArray(parsed.videos)) {
+    showToast('videos が配列ではありません'); return;
+  }
+  if (mode === 'replace') {
+    videos = parsed.videos;
+    if (Array.isArray(parsed.categories) && parsed.categories.length) categories = parsed.categories;
+  } else {
+    const map = new Map(videos.map(v => [v.id, v]));
+    parsed.videos.forEach(v => { if (v && v.id) map.set(v.id, v); });
+    videos = Array.from(map.values());
+    if (Array.isArray(parsed.categories)) {
+      categories = Array.from(new Set([...categories, ...parsed.categories]));
+    }
+  }
+  save();
+  renderCatTabs();
+  renderVideos();
+  closeModal('syncModal');
+  showToast(mode === 'replace' ? '上書きインポートしました' : 'マージインポートしました');
 }
 
 function extractVideoId(url) {
@@ -718,9 +1181,25 @@ function showToast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
+// インポート用ファイル選択
+document.getElementById('importFile').addEventListener('change', ev => {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    document.getElementById('importText').value = String(r.result || '');
+    applyImport(String(r.result || ''), document.getElementById('importMode').value);
+  };
+  r.readAsText(file);
+  ev.target.value = '';
+});
+
 // 初期表示
 renderCatTabs();
 renderVideos();
+
+// 起動時に Gist 同期 (設定済みなら)
+loadSync();
 </script>
 
 </body>
