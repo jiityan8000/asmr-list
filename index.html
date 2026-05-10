@@ -556,6 +556,103 @@
     border-radius: 8px;
   }
 
+  /* 軸切替セグメント (フィルタ + 管理モーダル共通) */
+  .axis-segment {
+    display: flex;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    margin: 0 0 10px;
+  }
+  .axis-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+  .axis-btn.active {
+    background: rgba(124,106,255,0.18);
+    color: var(--accent2);
+  }
+  .axis-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* チャンネル行 (select + ＋) */
+  .channel-row { display: flex; gap: 6px; align-items: stretch; }
+  .channel-row select { flex: 1; }
+  .channel-row .mini-btn { flex-shrink: 0; padding: 0 14px; }
+  .hint-muted { color: var(--muted); font-size: 11px; font-weight: 400; }
+  .fetch-hint { color: var(--accent2); font-size: 11px; font-weight: 400; margin-left: 6px; }
+
+  /* タグ複数選択 */
+  .tag-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 140px;
+    overflow-y: auto;
+    padding: 4px 2px;
+  }
+  .tag-chip {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tag-chip.on {
+    border-color: rgba(192,132,252,0.5);
+    background: rgba(192,132,252,0.18);
+    color: var(--accent2);
+  }
+
+  /* カードのチャンネル + タグバッジ行 */
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .channel-tag {
+    font-size: 10px;
+    color: var(--accent);
+    background: rgba(124,106,255,0.12);
+    border: 1px solid rgba(124,106,255,0.25);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  /* 並び替えボタン (管理モーダル) */
+  .reorder-btns { display: flex; gap: 2px; }
+  .reorder-btns button {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .reorder-btns button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .reorder-btns button:not(:disabled):active { background: rgba(124,106,255,0.18); color: var(--accent2); }
+
   /* スキップ秒プレビュー */
   .skip-preview {
     font-size: 11px;
@@ -620,11 +717,15 @@
     <div class="logo">睡眠 ASMR <span>おやすみリスト</span></div>
     <div style="display:flex;gap:8px">
       <button class="add-btn" onclick="openSyncModal()" title="同期 / バックアップ" style="font-size:16px">⚙</button>
-      <button class="add-btn" onclick="openCatModal()" title="カテゴリ管理" style="font-size:16px">🏷</button>
+      <button class="add-btn" onclick="openManageModal()" title="タグ／チャンネル管理" style="font-size:16px">🏷</button>
       <button class="add-btn" onclick="openAddModal()" title="動画追加">＋</button>
     </div>
   </div>
-  <div class="category-scroll" id="catTabs"></div>
+  <div class="axis-segment" id="axisSeg">
+    <button type="button" class="axis-btn active" data-axis="tag" onclick="setAxis('tag')">🏷 タグ</button>
+    <button type="button" class="axis-btn" data-axis="channel" onclick="setAxis('channel')">👥 チャンネル</button>
+  </div>
+  <div class="category-scroll" id="filterTabs"></div>
 </header>
 
 <main id="main">
@@ -641,8 +742,8 @@
     <div class="modal-handle"></div>
     <div class="modal-title" id="modalTitle">動画を追加</div>
     <div class="form-group">
-      <label>YouTube URL</label>
-      <input type="url" id="inputUrl" placeholder="https://www.youtube.com/watch?v=..." inputmode="url">
+      <label>YouTube URL <span id="urlFetchHint" class="fetch-hint"></span></label>
+      <input type="url" id="inputUrl" placeholder="https://www.youtube.com/watch?v=..." inputmode="url" onchange="handleUrlChange()" onblur="handleUrlChange()">
     </div>
     <div class="form-group">
       <label>動画タイトル</label>
@@ -655,9 +756,16 @@
         <div id="skipPreview" class="skip-preview">指定なし</div>
       </div>
       <div class="form-group">
-        <label>カテゴリ</label>
-        <select id="inputCat"></select>
+        <label>チャンネル</label>
+        <div class="channel-row">
+          <select id="inputChannel"></select>
+          <button type="button" class="mini-btn" onclick="addChannelInline()" title="新規チャンネル追加">＋</button>
+        </div>
       </div>
+    </div>
+    <div class="form-group">
+      <label>タグ <span class="hint-muted">(複数選択可)</span></label>
+      <div class="tag-picker" id="tagPicker"></div>
     </div>
     <button class="submit-btn" onclick="saveVideo()">保存する</button>
     <button class="cancel-btn" onclick="closeModal('addModal')">キャンセル</button>
@@ -675,18 +783,22 @@
   </div>
 </div>
 
-<!-- カテゴリ管理モーダル -->
-<div class="modal-overlay" id="catModal">
+<!-- タグ／チャンネル管理モーダル -->
+<div class="modal-overlay" id="manageModal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="modal-title">カテゴリ管理</div>
-    <div class="cat-list" id="catList"></div>
-    <div class="form-group">
-      <label>新しいカテゴリ</label>
-      <input type="text" id="newCatInput" placeholder="例: 囁き系、環境音...">
+    <div class="modal-title">タグ／チャンネル管理</div>
+    <div class="axis-segment" id="manageSeg">
+      <button type="button" class="axis-btn active" data-kind="tag" onclick="setManageKind('tag')">🏷 タグ</button>
+      <button type="button" class="axis-btn" data-kind="channel" onclick="setManageKind('channel')">👥 チャンネル</button>
     </div>
-    <button class="submit-btn" onclick="addCategory()">追加する</button>
-    <button class="cancel-btn" onclick="closeModal('catModal')">閉じる</button>
+    <div class="cat-list" id="manageList"></div>
+    <div class="form-group">
+      <label id="manageInputLabel">新しいタグ</label>
+      <input type="text" id="manageInput" placeholder="例: 囁き系、環境音...">
+    </div>
+    <button class="submit-btn" onclick="addManageItem()">追加する</button>
+    <button class="cancel-btn" onclick="closeModal('manageModal')">閉じる</button>
   </div>
 </div>
 
@@ -801,28 +913,84 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 </script>
 
 <script>
-const STORAGE_KEY = 'asmr_videos_v2';
-const CAT_KEY = 'asmr_cats_v2';
+const STORAGE_KEY = 'asmr_videos_v3';
+const TAGS_KEY = 'asmr_tags_v3';
+const CHANNELS_KEY = 'asmr_channels_v3';
+const STORAGE_KEY_V2 = 'asmr_videos_v2';
+const CAT_KEY_V2 = 'asmr_cats_v2';
 const META_KEY = 'asmr_meta_v1';
 const SYNC_KEY = 'asmr_sync_v1';
 const GIST_FILENAME = 'asmr-list.json';
 const PUSH_DEBOUNCE_MS = 1500;
+const DEFAULT_TAGS = ["癒し系","囁き系","環境音","バイノーラル","その他"];
+
+function migrateV2ToV3() {
+  if (localStorage.getItem(STORAGE_KEY) !== null) return;
+  const v2v = JSON.parse(localStorage.getItem(STORAGE_KEY_V2) || 'null');
+  const v2c = JSON.parse(localStorage.getItem(CAT_KEY_V2) || 'null');
+  if (Array.isArray(v2v)) {
+    const migrated = v2v.map(v => ({
+      id: v.id,
+      url: v.url,
+      title: v.title,
+      skip: v.skip,
+      channel: v.channel || '',
+      tags: Array.isArray(v.tags) ? v.tags : (v.cat ? [v.cat] : [])
+    }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+  } else {
+    localStorage.setItem(STORAGE_KEY, '[]');
+  }
+  if (Array.isArray(v2c) && v2c.length) {
+    localStorage.setItem(TAGS_KEY, JSON.stringify(v2c));
+  }
+  if (localStorage.getItem(CHANNELS_KEY) === null) {
+    localStorage.setItem(CHANNELS_KEY, '[]');
+  }
+}
+migrateV2ToV3();
 
 let videos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-let categories = JSON.parse(localStorage.getItem(CAT_KEY) || '["癒し系","囁き系","環境音","バイノーラル","その他"]');
+let tags = JSON.parse(localStorage.getItem(TAGS_KEY) || JSON.stringify(DEFAULT_TAGS));
+let channels = JSON.parse(localStorage.getItem(CHANNELS_KEY) || '[]');
 let meta = JSON.parse(localStorage.getItem(META_KEY) || '{}');
 let syncCfg = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
-let currentCat = 'all';
+let filterAxis = 'tag';
+let filterValue = '';
 let editingId = null;
 let deletingId = null;
 let pushTimer = null;
+let manageKind = 'tag';
+let selectedTags = [];
+let selectedChannel = '';
 
 function save() {
   meta.updatedAt = new Date().toISOString();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
-  localStorage.setItem(CAT_KEY, JSON.stringify(categories));
+  localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
+  localStorage.setItem(CHANNELS_KEY, JSON.stringify(channels));
   localStorage.setItem(META_KEY, JSON.stringify(meta));
   if (syncCfg.autoSync && syncCfg.pat && syncCfg.gistId) schedulePush();
+}
+
+function migrateRemoteToV2(remote) {
+  if (remote && remote.version === 2) return remote;
+  const r = remote || {};
+  const vids = Array.isArray(r.videos) ? r.videos.map(v => ({
+    id: v.id,
+    url: v.url,
+    title: v.title,
+    skip: v.skip,
+    channel: v.channel || '',
+    tags: Array.isArray(v.tags) ? v.tags : (v.cat ? [v.cat] : [])
+  })) : [];
+  return {
+    version: 2,
+    videos: vids,
+    tags: Array.isArray(r.categories) ? r.categories : (Array.isArray(r.tags) ? r.tags : []),
+    channels: Array.isArray(r.channels) ? r.channels : [],
+    updatedAt: r.updatedAt || ''
+  };
 }
 
 function persistSyncCfg() {
@@ -858,9 +1026,10 @@ async function ghApi(method, path, body) {
 
 function buildPayload() {
   return {
-    version: 1,
+    version: 2,
     videos,
-    categories,
+    tags,
+    channels,
     updatedAt: meta.updatedAt || new Date().toISOString()
   };
 }
@@ -913,13 +1082,16 @@ async function testConnection() {
 }
 
 function applyRemote(remote) {
-  if (Array.isArray(remote.videos)) videos = remote.videos;
-  if (Array.isArray(remote.categories) && remote.categories.length) categories = remote.categories;
-  meta.updatedAt = remote.updatedAt || new Date().toISOString();
+  const r = migrateRemoteToV2(remote);
+  videos = r.videos;
+  if (r.tags.length) tags = r.tags;
+  channels = r.channels;
+  meta.updatedAt = r.updatedAt || new Date().toISOString();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
-  localStorage.setItem(CAT_KEY, JSON.stringify(categories));
+  localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
+  localStorage.setItem(CHANNELS_KEY, JSON.stringify(channels));
   localStorage.setItem(META_KEY, JSON.stringify(meta));
-  renderCatTabs();
+  renderFilterTabs();
   renderVideos();
 }
 
@@ -1024,7 +1196,7 @@ async function handleSyncNow() {
 }
 
 function exportJson() {
-  const payload = { version: 1, videos, categories, exportedAt: new Date().toISOString() };
+  const payload = { version: 2, videos, tags, channels, exportedAt: new Date().toISOString() };
   const text = JSON.stringify(payload, null, 2);
   const blob = new Blob([text], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -1052,19 +1224,20 @@ function applyImport(text, mode) {
   if (!parsed || !Array.isArray(parsed.videos)) {
     showToast('videos が配列ではありません'); return;
   }
+  const r = migrateRemoteToV2(parsed);
   if (mode === 'replace') {
-    videos = parsed.videos;
-    if (Array.isArray(parsed.categories) && parsed.categories.length) categories = parsed.categories;
+    videos = r.videos;
+    if (r.tags.length) tags = r.tags;
+    channels = r.channels;
   } else {
     const map = new Map(videos.map(v => [v.id, v]));
-    parsed.videos.forEach(v => { if (v && v.id) map.set(v.id, v); });
+    r.videos.forEach(v => { if (v && v.id) map.set(v.id, v); });
     videos = Array.from(map.values());
-    if (Array.isArray(parsed.categories)) {
-      categories = Array.from(new Set([...categories, ...parsed.categories]));
-    }
+    tags = Array.from(new Set([...tags, ...r.tags]));
+    channels = Array.from(new Set([...channels, ...r.channels]));
   }
   save();
-  renderCatTabs();
+  renderFilterTabs();
   renderVideos();
   closeModal('syncModal');
   showToast(mode === 'replace' ? '上書きインポートしました' : 'マージインポートしました');
@@ -1257,27 +1430,59 @@ function playVideo(v) {
   setTimeout(() => { window.location.href = ytUrl; }, 500);
 }
 
-function renderCatTabs() {
-  const tabs = document.getElementById('catTabs');
-  const counts = { all: videos.length };
-  categories.forEach(c => counts[c] = videos.filter(v => v.cat === c).length);
-
-  tabs.innerHTML = [['all', `すべて (${counts.all})`], ...categories.map(c => [c, `${c} (${counts[c] || 0})`])]
-    .map(([val, label]) =>
-      `<button class="cat-chip ${currentCat === val ? 'active' : ''}" onclick="setCat('${val}')">${label}</button>`
-    ).join('');
+function videoMatchesFilter(v) {
+  if (filterValue === '') return true;
+  if (filterAxis === 'tag') return Array.isArray(v.tags) && v.tags.includes(filterValue);
+  if (filterAxis === 'channel') return v.channel === filterValue;
+  return true;
 }
 
-function setCat(cat) {
-  currentCat = cat;
-  renderCatTabs();
+function renderFilterTabs() {
+  const seg = document.getElementById('axisSeg');
+  if (seg) {
+    seg.querySelectorAll('.axis-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.axis === filterAxis);
+    });
+  }
+  const tabs = document.getElementById('filterTabs');
+  if (!tabs) return;
+  const items = filterAxis === 'tag' ? tags : channels;
+  const allCount = videos.length;
+  const counts = {};
+  items.forEach(name => {
+    counts[name] = videos.filter(v => {
+      if (filterAxis === 'tag') return Array.isArray(v.tags) && v.tags.includes(name);
+      return v.channel === name;
+    }).length;
+  });
+  const entries = [['', `すべて (${allCount})`], ...items.map(name => [name, `${name} (${counts[name] || 0})`])];
+  tabs.innerHTML = entries.map(([val, label], idx) =>
+    `<button class="cat-chip ${filterValue === val ? 'active' : ''}" onclick="setFilterByIndex(${idx})">${escHtml(label)}</button>`
+  ).join('');
+}
+
+function setAxis(axis) {
+  if (filterAxis === axis) return;
+  filterAxis = axis;
+  filterValue = '';
+  renderFilterTabs();
+  renderVideos();
+}
+
+function setFilterByIndex(idx) {
+  if (idx === 0) { filterValue = ''; }
+  else {
+    const items = filterAxis === 'tag' ? tags : channels;
+    filterValue = items[idx - 1] || '';
+  }
+  renderFilterTabs();
   renderVideos();
 }
 
 function renderVideos() {
   const grid = document.getElementById('videoGrid');
   const empty = document.getElementById('emptyState');
-  const filtered = currentCat === 'all' ? videos : videos.filter(v => v.cat === currentCat);
+  const filtered = videos.filter(videoMatchesFilter);
 
   if (filtered.length === 0) {
     grid.innerHTML = '';
@@ -1289,6 +1494,9 @@ function renderVideos() {
   grid.innerHTML = filtered.map(v => {
     const id = extractVideoId(v.url);
     const skip = formatSkip(parseInt(v.skip));
+    const tagList = Array.isArray(v.tags) ? v.tags : [];
+    const tagBadges = tagList.map(t => `<div class="cat-tag">${escHtml(t)}</div>`).join('');
+    const chBadge = v.channel ? `<div class="channel-tag">${escHtml(v.channel)}</div>` : '';
     return `
     <div class="video-card" onclick='playVideo(${JSON.stringify(v).replace(/'/g, "&#39;")})'>
       <div class="thumb-wrap">
@@ -1298,7 +1506,7 @@ function renderVideos() {
       <div class="card-info">
         <div class="card-title">${escHtml(v.title || '（タイトルなし）')}</div>
         <div class="card-meta">
-          <div class="cat-tag">${escHtml(v.cat || 'その他')}</div>
+          <div class="badge-row">${chBadge}${tagBadges}</div>
           <div class="card-actions" onclick="event.stopPropagation()">
             <button class="icon-btn" onclick="openEditModal('${v.id}')" title="編集">✏️</button>
             <button class="icon-btn" onclick="openDelModal('${v.id}')" title="削除">🗑</button>
@@ -1313,9 +1521,74 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-function renderCatSelect() {
-  const sel = document.getElementById('inputCat');
-  sel.innerHTML = categories.map(c => `<option value="${escHtml(c)}">${escHtml(c)}</option>`).join('');
+function renderChannelSelect() {
+  const sel = document.getElementById('inputChannel');
+  const options = [['', '(指定なし)'], ...channels.map(c => [c, c])];
+  sel.innerHTML = options.map(([v, l]) => `<option value="${escHtml(v)}">${escHtml(l)}</option>`).join('');
+  sel.value = selectedChannel;
+}
+
+function renderTagPicker() {
+  const wrap = document.getElementById('tagPicker');
+  if (!tags.length) {
+    wrap.innerHTML = '<div class="hint-muted" style="font-size:12px">タグがありません。🏷ボタンから追加できます</div>';
+    return;
+  }
+  wrap.innerHTML = tags.map(t => {
+    const on = selectedTags.includes(t);
+    return `<button type="button" class="tag-chip ${on ? 'on' : ''}" data-tag="${escHtml(t)}" onclick="toggleTagPick(this)">${escHtml(t)}</button>`;
+  }).join('');
+}
+
+function toggleTagPick(btn) {
+  const t = btn.dataset.tag;
+  const i = selectedTags.indexOf(t);
+  if (i >= 0) selectedTags.splice(i, 1);
+  else selectedTags.push(t);
+  btn.classList.toggle('on');
+}
+
+function addChannelInline() {
+  const name = (prompt('新しいチャンネル名') || '').trim();
+  if (!name) return;
+  if (!channels.includes(name)) {
+    channels.push(name);
+    save();
+  }
+  selectedChannel = name;
+  renderChannelSelect();
+  showToast(`チャンネル「${name}」を追加しました`);
+}
+
+let oembedToken = 0;
+async function handleUrlChange() {
+  const url = document.getElementById('inputUrl').value.trim();
+  if (!url || !extractVideoId(url)) return;
+  const hint = document.getElementById('urlFetchHint');
+  const myToken = ++oembedToken;
+  hint.textContent = '取得中…';
+  try {
+    const r = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+    if (myToken !== oembedToken) return;
+    if (!r.ok) { hint.textContent = ''; return; }
+    const data = await r.json();
+    if (myToken !== oembedToken) return;
+    const titleEl = document.getElementById('inputTitle');
+    if (!titleEl.value.trim() && data.title) titleEl.value = data.title;
+    if (!selectedChannel && data.author_name) {
+      const name = data.author_name;
+      if (!channels.includes(name)) {
+        channels.push(name);
+        save();
+      }
+      selectedChannel = name;
+      renderChannelSelect();
+    }
+    hint.textContent = '✓';
+    setTimeout(() => { if (myToken === oembedToken) hint.textContent = ''; }, 1500);
+  } catch {
+    if (myToken === oembedToken) hint.textContent = '';
+  }
 }
 
 function openAddModal() {
@@ -1324,7 +1597,11 @@ function openAddModal() {
   document.getElementById('inputUrl').value = '';
   document.getElementById('inputTitle').value = '';
   document.getElementById('inputSkip').value = '';
-  renderCatSelect();
+  document.getElementById('urlFetchHint').textContent = '';
+  selectedTags = [];
+  selectedChannel = '';
+  renderChannelSelect();
+  renderTagPicker();
   updateSkipPreview();
   openModal('addModal');
 }
@@ -1337,8 +1614,11 @@ function openEditModal(id) {
   document.getElementById('inputUrl').value = v.url || '';
   document.getElementById('inputTitle').value = v.title || '';
   document.getElementById('inputSkip').value = secondsToCompactInput(v.skip);
-  renderCatSelect();
-  document.getElementById('inputCat').value = v.cat || categories[0];
+  document.getElementById('urlFetchHint').textContent = '';
+  selectedTags = Array.isArray(v.tags) ? [...v.tags] : [];
+  selectedChannel = v.channel || '';
+  renderChannelSelect();
+  renderTagPicker();
   updateSkipPreview();
   openModal('addModal');
 }
@@ -1347,7 +1627,8 @@ function saveVideo() {
   const url = document.getElementById('inputUrl').value.trim();
   const title = document.getElementById('inputTitle').value.trim();
   const skip = parseSkipInput(document.getElementById('inputSkip').value);
-  const cat = document.getElementById('inputCat').value;
+  const channel = document.getElementById('inputChannel').value;
+  const vidTags = selectedTags.filter(t => tags.includes(t));
 
   if (!url) { showToast('URLを入力してください'); return; }
   if (!extractVideoId(url)) { showToast('YouTubeのURLを入力してください'); return; }
@@ -1355,14 +1636,14 @@ function saveVideo() {
 
   if (editingId) {
     const idx = videos.findIndex(v => v.id === editingId);
-    if (idx >= 0) videos[idx] = { ...videos[idx], url, title, skip, cat };
+    if (idx >= 0) videos[idx] = { ...videos[idx], url, title, skip, channel, tags: vidTags };
   } else {
-    videos.unshift({ id: Date.now().toString(), url, title, skip, cat });
+    videos.unshift({ id: Date.now().toString(), url, title, skip, channel, tags: vidTags });
   }
 
   save();
   closeModal('addModal');
-  renderCatTabs();
+  renderFilterTabs();
   renderVideos();
   showToast(editingId ? '更新しました' : '追加しました 🌙');
 }
@@ -1378,46 +1659,86 @@ function confirmDelete() {
   videos = videos.filter(v => v.id !== deletingId);
   save();
   closeModal('delModal');
-  renderCatTabs();
+  renderFilterTabs();
   renderVideos();
   showToast('削除しました');
 }
 
-function openCatModal() {
-  renderCatList();
-  openModal('catModal');
+function openManageModal() {
+  setManageKind(manageKind);
+  openModal('manageModal');
 }
 
-function renderCatList() {
-  document.getElementById('catList').innerHTML = categories.map((c, i) =>
-    `<div class="cat-item">
-      <span>${escHtml(c)}</span>
-      <button onclick="deleteCategory(${i})">×</button>
-    </div>`
-  ).join('');
+function setManageKind(kind) {
+  manageKind = kind;
+  document.querySelectorAll('#manageSeg .axis-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.kind === kind);
+  });
+  document.getElementById('manageInputLabel').textContent = kind === 'tag' ? '新しいタグ' : '新しいチャンネル';
+  document.getElementById('manageInput').placeholder = kind === 'tag' ? '例: 囁き系、環境音...' : '例: チャンネル名';
+  renderManageList();
 }
 
-function addCategory() {
-  const val = document.getElementById('newCatInput').value.trim();
+function manageItems() { return manageKind === 'tag' ? tags : channels; }
+
+function isItemInUse(name) {
+  if (manageKind === 'tag') return videos.some(v => Array.isArray(v.tags) && v.tags.includes(name));
+  return videos.some(v => v.channel === name);
+}
+
+function renderManageList() {
+  const items = manageItems();
+  const list = document.getElementById('manageList');
+  if (!items.length) {
+    list.innerHTML = '<div class="hint-muted" style="font-size:12px;padding:8px 0">まだ登録がありません</div>';
+    return;
+  }
+  list.innerHTML = items.map((name, i) => `
+    <div class="cat-item">
+      <span>${escHtml(name)}</span>
+      <div class="reorder-btns">
+        <button onclick="moveManageItem(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="上へ">▲</button>
+        <button onclick="moveManageItem(${i}, 1)" ${i === items.length - 1 ? 'disabled' : ''} title="下へ">▼</button>
+        <button onclick="deleteManageItem(${i})" title="削除">×</button>
+      </div>
+    </div>`).join('');
+}
+
+function addManageItem() {
+  const inp = document.getElementById('manageInput');
+  const val = inp.value.trim();
   if (!val) return;
-  if (categories.includes(val)) { showToast('すでに存在します'); return; }
-  categories.push(val);
+  const items = manageItems();
+  if (items.includes(val)) { showToast('すでに存在します'); return; }
+  items.push(val);
   save();
-  document.getElementById('newCatInput').value = '';
-  renderCatList();
-  renderCatTabs();
+  inp.value = '';
+  renderManageList();
+  renderFilterTabs();
   showToast(`「${val}」を追加しました`);
 }
 
-function deleteCategory(i) {
-  if (videos.some(v => v.cat === categories[i])) {
-    showToast('この動画が使用中のカテゴリは削除できません');
+function deleteManageItem(i) {
+  const items = manageItems();
+  const name = items[i];
+  if (isItemInUse(name)) {
+    showToast(manageKind === 'tag' ? 'この動画が使用中のタグは削除できません' : 'この動画が使用中のチャンネルは削除できません');
     return;
   }
-  categories.splice(i, 1);
+  items.splice(i, 1);
   save();
-  renderCatList();
-  renderCatTabs();
+  renderManageList();
+  renderFilterTabs();
+}
+
+function moveManageItem(i, dir) {
+  const items = manageItems();
+  const j = i + dir;
+  if (j < 0 || j >= items.length) return;
+  [items[i], items[j]] = [items[j], items[i]];
+  save();
+  renderManageList();
+  renderFilterTabs();
 }
 
 function openModal(id) {
@@ -1460,7 +1781,7 @@ document.getElementById('importFile').addEventListener('change', ev => {
 });
 
 // 初期表示
-renderCatTabs();
+renderFilterTabs();
 renderVideos();
 
 // ?sync= があれば取込確認モーダルを先に出す。確定/拒否後に loadSync する。
