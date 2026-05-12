@@ -136,7 +136,7 @@
   main {
     position: relative;
     z-index: 1;
-    padding: 16px 16px 150px;
+    padding: 16px 16px 170px;
   }
 
   .empty-state {
@@ -597,11 +597,15 @@
   .channel-tabs::-webkit-scrollbar { display: none; }
   .channel-tab {
     flex-shrink: 0;
-    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 14px 10px;
+    min-width: 64px;
     border: none;
     background: transparent;
     color: var(--muted);
-    font-size: 13px;
     font-family: 'Zen Kaku Gothic New', sans-serif;
     border-bottom: 2px solid transparent;
     cursor: pointer;
@@ -612,6 +616,34 @@
     color: var(--accent2);
     border-bottom-color: var(--accent2);
   }
+  .channel-tab-icon {
+    font-size: 18px;
+    line-height: 1;
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .channel-tab-text {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  /* チャンネル管理行の絵文字入力 */
+  .ch-icon {
+    width: 38px;
+    text-align: center;
+    font-size: 18px;
+    padding: 4px;
+    margin-right: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .cat-item.with-icon { gap: 0; }
+  .cat-item .name-text { flex: 1; }
 
   /* 軸切替セグメント (管理モーダル用) */
   .axis-segment {
@@ -1041,6 +1073,13 @@ setupAppleTouchIcon();
 let videos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 let tags = JSON.parse(localStorage.getItem(TAGS_KEY) || JSON.stringify(DEFAULT_TAGS));
 let channels = JSON.parse(localStorage.getItem(CHANNELS_KEY) || '[]');
+function normalizeChannels() {
+  channels = channels.map(c => typeof c === 'string'
+    ? { name: c, icon: '' }
+    : { name: (c && c.name) || '', icon: (c && c.icon) || '' }
+  );
+}
+normalizeChannels();
 let meta = JSON.parse(localStorage.getItem(META_KEY) || '{}');
 let syncCfg = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
 let tagFilter = '';
@@ -1174,6 +1213,7 @@ function applyRemote(remote) {
   videos = r.videos;
   if (r.tags.length) tags = r.tags;
   channels = r.channels;
+  normalizeChannels();
   meta.updatedAt = r.updatedAt || new Date().toISOString();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
   localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
@@ -1322,8 +1362,13 @@ function applyImport(text, mode) {
     r.videos.forEach(v => { if (v && v.id) map.set(v.id, v); });
     videos = Array.from(map.values());
     tags = Array.from(new Set([...tags, ...r.tags]));
-    channels = Array.from(new Set([...channels, ...r.channels]));
+    const seen = new Set(channels.map(c => (typeof c === 'string' ? c : c.name)));
+    r.channels.forEach(c => {
+      const name = typeof c === 'string' ? c : c.name;
+      if (name && !seen.has(name)) { channels.push(c); seen.add(name); }
+    });
   }
+  normalizeChannels();
   save();
   renderFilterTabs();
   renderVideos();
@@ -1551,12 +1596,15 @@ function renderChannelFilterRow() {
   tabs.style.display = 'flex';
   const baseFilter = v => !tagFilter || (Array.isArray(v.tags) && v.tags.includes(tagFilter));
   const allCount = videos.filter(baseFilter).length;
-  const entries = [['', `すべて (${allCount})`], ...channels.map(name => {
-    const n = videos.filter(v => baseFilter(v) && v.channel === name).length;
-    return [name, `${name} (${n})`];
+  const entries = [{ name: '', icon: '', label: `すべて (${allCount})` }, ...channels.map(c => {
+    const n = videos.filter(v => baseFilter(v) && v.channel === c.name).length;
+    return { name: c.name, icon: c.icon || '', label: `${c.name} (${n})` };
   })];
-  tabs.innerHTML = entries.map(([val, label], idx) =>
-    `<button class="channel-tab ${channelFilter === val ? 'active' : ''}" onclick="setChannelFilterByIndex(${idx})">${escHtml(label)}</button>`
+  tabs.innerHTML = entries.map((e, idx) =>
+    `<button class="channel-tab ${channelFilter === e.name ? 'active' : ''}" onclick="setChannelFilterByIndex(${idx})">` +
+      `<span class="channel-tab-icon">${escHtml(e.icon)}</span>` +
+      `<span class="channel-tab-text">${escHtml(e.label)}</span>` +
+    `</button>`
   ).join('');
 }
 
@@ -1567,7 +1615,8 @@ function setTagFilterByIndex(idx) {
 }
 
 function setChannelFilterByIndex(idx) {
-  channelFilter = idx === 0 ? '' : (channels[idx - 1] || '');
+  if (idx === 0) channelFilter = '';
+  else channelFilter = (channels[idx - 1] && channels[idx - 1].name) || '';
   renderFilterTabs();
   renderVideos();
 }
@@ -1616,7 +1665,8 @@ function escHtml(s) {
 
 function renderChannelSelect() {
   const sel = document.getElementById('inputChannel');
-  const options = [['', '(指定なし)'], ...channels.map(c => [c, c])];
+  const labelOf = c => c.icon ? `${c.icon} ${c.name}` : c.name;
+  const options = [['', '(指定なし)'], ...channels.map(c => [c.name, labelOf(c)])];
   sel.innerHTML = options.map(([v, l]) => `<option value="${escHtml(v)}">${escHtml(l)}</option>`).join('');
   sel.value = selectedChannel;
 }
@@ -1644,8 +1694,8 @@ function toggleTagPick(btn) {
 function addChannelInline() {
   const name = (prompt('新しいチャンネル名') || '').trim();
   if (!name) return;
-  if (!channels.includes(name)) {
-    channels.push(name);
+  if (!channels.some(c => c.name === name)) {
+    channels.push({ name, icon: '' });
     save();
   }
   selectedChannel = name;
@@ -1670,8 +1720,8 @@ async function handleUrlChange() {
     if (!titleEl.value.trim() && data.title) titleEl.value = data.title;
     if (!selectedChannel && data.author_name) {
       const name = data.author_name;
-      if (!channels.includes(name)) {
-        channels.push(name);
+      if (!channels.some(c => c.name === name)) {
+        channels.push({ name, icon: '' });
         save();
       }
       selectedChannel = name;
@@ -1786,24 +1836,48 @@ function renderManageList() {
     list.innerHTML = '<div class="hint-muted" style="font-size:12px;padding:8px 0">まだ登録がありません</div>';
     return;
   }
-  list.innerHTML = items.map((name, i) => `
-    <div class="cat-item">
-      <span>${escHtml(name)}</span>
-      <div class="reorder-btns">
-        <button onclick="moveManageItem(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="上へ">▲</button>
-        <button onclick="moveManageItem(${i}, 1)" ${i === items.length - 1 ? 'disabled' : ''} title="下へ">▼</button>
-        <button onclick="deleteManageItem(${i})" title="削除">×</button>
-      </div>
-    </div>`).join('');
+  if (manageKind === 'channel') {
+    list.innerHTML = items.map((c, i) => `
+      <div class="cat-item with-icon">
+        <input class="ch-icon" type="text" value="${escHtml(c.icon || '')}" placeholder="🎙" oninput="updateChannelIcon(${i}, this.value)">
+        <span class="name-text">${escHtml(c.name)}</span>
+        <div class="reorder-btns">
+          <button onclick="moveManageItem(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="上へ">▲</button>
+          <button onclick="moveManageItem(${i}, 1)" ${i === items.length - 1 ? 'disabled' : ''} title="下へ">▼</button>
+          <button onclick="deleteManageItem(${i})" title="削除">×</button>
+        </div>
+      </div>`).join('');
+  } else {
+    list.innerHTML = items.map((name, i) => `
+      <div class="cat-item">
+        <span>${escHtml(name)}</span>
+        <div class="reorder-btns">
+          <button onclick="moveManageItem(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="上へ">▲</button>
+          <button onclick="moveManageItem(${i}, 1)" ${i === items.length - 1 ? 'disabled' : ''} title="下へ">▼</button>
+          <button onclick="deleteManageItem(${i})" title="削除">×</button>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function updateChannelIcon(i, value) {
+  if (!channels[i]) return;
+  channels[i].icon = value;
+  save();
+  renderFilterTabs();
 }
 
 function addManageItem() {
   const inp = document.getElementById('manageInput');
   const val = inp.value.trim();
   if (!val) return;
-  const items = manageItems();
-  if (items.includes(val)) { showToast('すでに存在します'); return; }
-  items.push(val);
+  if (manageKind === 'tag') {
+    if (tags.includes(val)) { showToast('すでに存在します'); return; }
+    tags.push(val);
+  } else {
+    if (channels.some(c => c.name === val)) { showToast('すでに存在します'); return; }
+    channels.push({ name: val, icon: '' });
+  }
   save();
   inp.value = '';
   renderManageList();
@@ -1813,7 +1887,8 @@ function addManageItem() {
 
 function deleteManageItem(i) {
   const items = manageItems();
-  const name = items[i];
+  const entry = items[i];
+  const name = manageKind === 'tag' ? entry : (entry && entry.name) || '';
   if (isItemInUse(name)) {
     showToast(manageKind === 'tag' ? 'この動画が使用中のタグは削除できません' : 'この動画が使用中のチャンネルは削除できません');
     return;
