@@ -556,7 +556,23 @@
     border-radius: 8px;
   }
 
-  /* 軸切替セグメント (フィルタ + 管理モーダル共通) */
+  /* フィルタ行 (タグ / チャンネル 並列) */
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .filter-row:last-child { margin-bottom: 0; }
+  .filter-label {
+    flex-shrink: 0;
+    font-size: 13px;
+    color: var(--muted);
+    width: 18px;
+    text-align: center;
+  }
+
+  /* 軸切替セグメント (管理モーダル用) */
   .axis-segment {
     display: flex;
     gap: 6px;
@@ -721,11 +737,14 @@
       <button class="add-btn" onclick="openAddModal()" title="動画追加">＋</button>
     </div>
   </div>
-  <div class="axis-segment" id="axisSeg">
-    <button type="button" class="axis-btn active" data-axis="tag" onclick="setAxis('tag')">🏷 タグ</button>
-    <button type="button" class="axis-btn" data-axis="channel" onclick="setAxis('channel')">👥 チャンネル</button>
+  <div class="filter-row" id="tagFilterRow">
+    <div class="filter-label">🏷</div>
+    <div class="category-scroll" id="tagFilterTabs"></div>
   </div>
-  <div class="category-scroll" id="filterTabs"></div>
+  <div class="filter-row" id="channelFilterRow">
+    <div class="filter-label">👥</div>
+    <div class="category-scroll" id="channelFilterTabs"></div>
+  </div>
 </header>
 
 <main id="main">
@@ -983,8 +1002,8 @@ let tags = JSON.parse(localStorage.getItem(TAGS_KEY) || JSON.stringify(DEFAULT_T
 let channels = JSON.parse(localStorage.getItem(CHANNELS_KEY) || '[]');
 let meta = JSON.parse(localStorage.getItem(META_KEY) || '{}');
 let syncCfg = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
-let filterAxis = 'tag';
-let filterValue = '';
+let tagFilter = '';
+let channelFilter = '';
 let editingId = null;
 let deletingId = null;
 let pushTimer = null;
@@ -1459,50 +1478,56 @@ function playVideo(v) {
 }
 
 function videoMatchesFilter(v) {
-  if (filterValue === '') return true;
-  if (filterAxis === 'tag') return Array.isArray(v.tags) && v.tags.includes(filterValue);
-  if (filterAxis === 'channel') return v.channel === filterValue;
+  if (tagFilter && !(Array.isArray(v.tags) && v.tags.includes(tagFilter))) return false;
+  if (channelFilter && v.channel !== channelFilter) return false;
   return true;
 }
 
 function renderFilterTabs() {
-  const seg = document.getElementById('axisSeg');
-  if (seg) {
-    seg.querySelectorAll('.axis-btn').forEach(b => {
-      b.classList.toggle('active', b.dataset.axis === filterAxis);
-    });
-  }
-  const tabs = document.getElementById('filterTabs');
-  if (!tabs) return;
-  const items = filterAxis === 'tag' ? tags : channels;
-  const allCount = videos.length;
-  const counts = {};
-  items.forEach(name => {
-    counts[name] = videos.filter(v => {
-      if (filterAxis === 'tag') return Array.isArray(v.tags) && v.tags.includes(name);
-      return v.channel === name;
-    }).length;
-  });
-  const entries = [['', `すべて (${allCount})`], ...items.map(name => [name, `${name} (${counts[name] || 0})`])];
+  renderTagFilterRow();
+  renderChannelFilterRow();
+}
+
+function renderTagFilterRow() {
+  const row = document.getElementById('tagFilterRow');
+  if (!tags.length) { row.style.display = 'none'; return; }
+  row.style.display = 'flex';
+  const tabs = document.getElementById('tagFilterTabs');
+  const baseFilter = v => !channelFilter || v.channel === channelFilter;
+  const allCount = videos.filter(baseFilter).length;
+  const entries = [['', `すべて (${allCount})`], ...tags.map(name => {
+    const n = videos.filter(v => baseFilter(v) && Array.isArray(v.tags) && v.tags.includes(name)).length;
+    return [name, `${name} (${n})`];
+  })];
   tabs.innerHTML = entries.map(([val, label], idx) =>
-    `<button class="cat-chip ${filterValue === val ? 'active' : ''}" onclick="setFilterByIndex(${idx})">${escHtml(label)}</button>`
+    `<button class="cat-chip ${tagFilter === val ? 'active' : ''}" onclick="setTagFilterByIndex(${idx})">${escHtml(label)}</button>`
   ).join('');
 }
 
-function setAxis(axis) {
-  if (filterAxis === axis) return;
-  filterAxis = axis;
-  filterValue = '';
+function renderChannelFilterRow() {
+  const row = document.getElementById('channelFilterRow');
+  if (!channels.length) { row.style.display = 'none'; return; }
+  row.style.display = 'flex';
+  const tabs = document.getElementById('channelFilterTabs');
+  const baseFilter = v => !tagFilter || (Array.isArray(v.tags) && v.tags.includes(tagFilter));
+  const allCount = videos.filter(baseFilter).length;
+  const entries = [['', `すべて (${allCount})`], ...channels.map(name => {
+    const n = videos.filter(v => baseFilter(v) && v.channel === name).length;
+    return [name, `${name} (${n})`];
+  })];
+  tabs.innerHTML = entries.map(([val, label], idx) =>
+    `<button class="cat-chip ${channelFilter === val ? 'active' : ''}" onclick="setChannelFilterByIndex(${idx})">${escHtml(label)}</button>`
+  ).join('');
+}
+
+function setTagFilterByIndex(idx) {
+  tagFilter = idx === 0 ? '' : (tags[idx - 1] || '');
   renderFilterTabs();
   renderVideos();
 }
 
-function setFilterByIndex(idx) {
-  if (idx === 0) { filterValue = ''; }
-  else {
-    const items = filterAxis === 'tag' ? tags : channels;
-    filterValue = items[idx - 1] || '';
-  }
+function setChannelFilterByIndex(idx) {
+  channelFilter = idx === 0 ? '' : (channels[idx - 1] || '');
   renderFilterTabs();
   renderVideos();
 }
