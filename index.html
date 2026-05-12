@@ -950,6 +950,34 @@ function migrateV2ToV3() {
 }
 migrateV2ToV3();
 
+function setupAppleTouchIcon() {
+  try {
+    const size = 180, s = size / 64;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#13141c';
+    ctx.fillRect(0, 0, size, size);
+    ctx.fillStyle = '#c084fc';
+    ctx.beginPath();
+    ctx.arc(28 * s, 32 * s, 20 * s, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#13141c';
+    ctx.beginPath();
+    ctx.arc(40 * s, 32 * s, 18 * s, 0, Math.PI * 2);
+    ctx.fill();
+    const dataUrl = canvas.toDataURL('image/png');
+    let link = document.querySelector('link[rel="apple-touch-icon"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'apple-touch-icon';
+      document.head.appendChild(link);
+    }
+    link.href = dataUrl;
+  } catch {}
+}
+setupAppleTouchIcon();
+
 let videos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 let tags = JSON.parse(localStorage.getItem(TAGS_KEY) || JSON.stringify(DEFAULT_TAGS));
 let channels = JSON.parse(localStorage.getItem(CHANNELS_KEY) || '[]');
