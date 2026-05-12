@@ -136,7 +136,7 @@
   main {
     position: relative;
     z-index: 1;
-    padding: 16px 16px 100px;
+    padding: 16px 16px 150px;
   }
 
   .empty-state {
@@ -556,12 +556,24 @@
     border-radius: 8px;
   }
 
-  /* フィルタ行 (タグ / チャンネル 並列) */
+  /* 下部固定フィルタバー */
+  .filter-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 100;
+    background: rgba(13, 14, 20, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 8px 12px calc(4px + env(safe-area-inset-bottom));
+  }
+
+  /* タグ chip 行 (フィルタバー内) */
   .filter-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .filter-row:last-child { margin-bottom: 0; }
   .filter-label {
@@ -570,6 +582,35 @@
     color: var(--muted);
     width: 18px;
     text-align: center;
+  }
+
+  /* チャンネルタブ (アンダーラインスタイル) */
+  .channel-tabs {
+    display: flex;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    margin-top: 4px;
+    padding-left: 26px;
+  }
+  .channel-tabs::-webkit-scrollbar { display: none; }
+  .channel-tab {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.18s, border-color 0.18s;
+  }
+  .channel-tab.active {
+    color: var(--accent2);
+    border-bottom-color: var(--accent2);
   }
 
   /* 軸切替セグメント (管理モーダル用) */
@@ -736,14 +777,6 @@
       <button class="add-btn" onclick="openManageModal()" title="タグ／チャンネル管理" style="font-size:16px">🏷</button>
       <button class="add-btn" onclick="openAddModal()" title="動画追加">＋</button>
     </div>
-  </div>
-  <div class="filter-row" id="tagFilterRow">
-    <div class="filter-label">🏷</div>
-    <div class="category-scroll" id="tagFilterTabs"></div>
-  </div>
-  <div class="filter-row" id="channelFilterRow">
-    <div class="filter-label">👥</div>
-    <div class="category-scroll" id="channelFilterTabs"></div>
   </div>
 </header>
 
@@ -922,6 +955,14 @@
     <button class="submit-btn" onclick="acceptIncomingShare()">取り込む</button>
     <button class="cancel-btn" onclick="dismissIncomingShare()">取り込まない</button>
   </div>
+</div>
+
+<div class="filter-bar" id="filterBar">
+  <div class="filter-row" id="tagFilterRow">
+    <div class="filter-label">🏷</div>
+    <div class="category-scroll" id="tagFilterTabs"></div>
+  </div>
+  <div class="channel-tabs" id="channelFilterTabs"></div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -1505,10 +1546,9 @@ function renderTagFilterRow() {
 }
 
 function renderChannelFilterRow() {
-  const row = document.getElementById('channelFilterRow');
-  if (!channels.length) { row.style.display = 'none'; return; }
-  row.style.display = 'flex';
   const tabs = document.getElementById('channelFilterTabs');
+  if (!channels.length) { tabs.style.display = 'none'; return; }
+  tabs.style.display = 'flex';
   const baseFilter = v => !tagFilter || (Array.isArray(v.tags) && v.tags.includes(tagFilter));
   const allCount = videos.filter(baseFilter).length;
   const entries = [['', `すべて (${allCount})`], ...channels.map(name => {
@@ -1516,7 +1556,7 @@ function renderChannelFilterRow() {
     return [name, `${name} (${n})`];
   })];
   tabs.innerHTML = entries.map(([val, label], idx) =>
-    `<button class="cat-chip ${channelFilter === val ? 'active' : ''}" onclick="setChannelFilterByIndex(${idx})">${escHtml(label)}</button>`
+    `<button class="channel-tab ${channelFilter === val ? 'active' : ''}" onclick="setChannelFilterByIndex(${idx})">${escHtml(label)}</button>`
   ).join('');
 }
 
