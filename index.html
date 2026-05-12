@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="睡眠ASMR">
 <title>睡眠ASMR</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2313141c'/><circle cx='28' cy='32' r='20' fill='%23c084fc'/><circle cx='40' cy='32' r='18' fill='%2313141c'/></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2313141c'/><circle cx='28' cy='32' r='20' fill='%23c084fc'/><circle cx='40' cy='32' r='18' fill='%2313141c'/></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2313141c'/><circle cx='40' cy='32' r='22' fill='%23c084fc'/><circle cx='60' cy='32' r='17' fill='%2313141c'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2313141c'/><circle cx='40' cy='32' r='22' fill='%23c084fc'/><circle cx='60' cy='32' r='17' fill='%2313141c'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -960,11 +960,11 @@ function setupAppleTouchIcon() {
     ctx.fillRect(0, 0, size, size);
     ctx.fillStyle = '#c084fc';
     ctx.beginPath();
-    ctx.arc(28 * s, 32 * s, 20 * s, 0, Math.PI * 2);
+    ctx.arc(40 * s, 32 * s, 22 * s, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = '#13141c';
     ctx.beginPath();
-    ctx.arc(40 * s, 32 * s, 18 * s, 0, Math.PI * 2);
+    ctx.arc(60 * s, 32 * s, 17 * s, 0, Math.PI * 2);
     ctx.fill();
     const dataUrl = canvas.toDataURL('image/png');
     let link = document.querySelector('link[rel="apple-touch-icon"]');
