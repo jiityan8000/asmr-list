@@ -444,15 +444,6 @@
     margin-bottom: 12px;
   }
 
-  .sync-link {
-    display: inline-block;
-    margin-top: 6px;
-    font-size: 11px;
-    color: var(--accent2);
-    text-decoration: none;
-  }
-  .sync-link:active { opacity: 0.7; }
-
   .toggle-row {
     display: flex;
     align-items: center;
@@ -462,37 +453,6 @@
     color: var(--text);
   }
   .toggle-row > label { margin: 0; text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--text); }
-
-  .toggle-switch {
-    width: 42px;
-    height: 24px;
-    appearance: none;
-    -webkit-appearance: none;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .toggle-switch::after {
-    content: '';
-    position: absolute;
-    top: 2px; left: 2px;
-    width: 18px; height: 18px;
-    background: var(--muted);
-    border-radius: 50%;
-    transition: all 0.2s;
-  }
-  .toggle-switch:checked {
-    background: rgba(124,106,255,0.22);
-    border-color: rgba(124,106,255,0.5);
-  }
-  .toggle-switch:checked::after {
-    left: 21px;
-    background: var(--accent);
-  }
 
   .btn-row {
     display: flex;
@@ -751,52 +711,6 @@
     letter-spacing: 0.02em;
   }
   .skip-preview.invalid { color: #f87171; }
-
-  /* PAT 表示トグル */
-  .pat-row {
-    position: relative;
-  }
-  .pat-row input { padding-right: 42px; }
-  .eye-btn {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 32px; height: 32px;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .eye-btn:active { background: rgba(255,255,255,0.06); color: var(--text); }
-
-  /* 共有URL / QR */
-  .share-box {
-    margin-top: 8px;
-    padding: 14px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    display: none;
-  }
-  .share-box.open { display: block; }
-
-  .qr-canvas {
-    display: flex;
-    justify-content: center;
-    margin-top: 12px;
-    padding: 12px;
-    background: #fff;
-    border-radius: 10px;
-  }
-  .qr-canvas > div, .qr-canvas canvas, .qr-canvas img, .qr-canvas svg {
-    width: 200px !important;
-    height: 200px !important;
-    display: block;
-  }
 </style>
 </head>
 <body>
@@ -892,52 +806,16 @@
     <div class="modal-handle"></div>
     <div class="modal-title">同期 / バックアップ</div>
 
-    <div class="section-label">クラウド同期 (GitHub Gist)</div>
-    <div id="syncStatus" class="sync-status">未設定</div>
+    <div class="section-label">クラウド同期 (Firebase)</div>
+    <div id="syncStatus" class="sync-status">接続中…</div>
 
-    <div class="form-group">
-      <label>Personal Access Token (scope: gist)</label>
-      <div class="pat-row">
-        <input type="password" id="syncPat" placeholder="ghp_..." autocomplete="off" spellcheck="false">
-        <button type="button" class="eye-btn" onclick="togglePatVisibility()" title="表示/非表示" id="patEye">👁</button>
-      </div>
-      <a class="sync-link" href="https://github.com/settings/tokens/new?scopes=gist&description=ASMR%20Sync" target="_blank" rel="noopener">▸ トークンを発行する (新規タブ)</a>
-    </div>
-
-    <div class="form-group">
-      <label>Gist ID</label>
-      <input type="text" id="syncGistId" placeholder="既存IDを入力 or 新規作成ボタン" autocomplete="off" spellcheck="false">
-    </div>
-
-    <div class="toggle-row">
-      <label for="syncAuto">自動同期</label>
-      <input type="checkbox" id="syncAuto" class="toggle-switch">
-    </div>
+    <p style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:14px">
+      リストはクラウドに自動保存されます。どの端末でこのページを開いても同じ内容が表示され、端末ごとの設定は不要です。
+    </p>
 
     <div class="btn-row">
-      <button class="mini-btn" onclick="handleCreateGist()">Gist 新規作成</button>
-      <button class="mini-btn" onclick="handleTestConnection()">接続テスト</button>
-      <button class="mini-btn primary" onclick="handleSyncNow()">今すぐ同期</button>
-    </div>
-
-    <button class="submit-btn" onclick="saveSyncSettings(true)">設定を保存</button>
-
-    <div class="sync-divider"></div>
-
-    <div class="section-label">他端末への引き継ぎ (URL / QR)</div>
-
-    <button class="mini-btn" style="width:100%" onclick="generateShareUrl()">設定共有URLを発行</button>
-
-    <div id="shareBox" class="share-box">
-      <textarea id="shareUrlText" class="json-area" style="min-height:60px" readonly></textarea>
-      <div class="btn-row" style="margin-top:8px">
-        <button class="mini-btn" onclick="copyShareUrl()">URLをコピー</button>
-        <button class="mini-btn" onclick="closeShareBox()">閉じる</button>
-      </div>
-      <div id="qrCanvas" class="qr-canvas"></div>
-      <p style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px">
-        この URL には PAT が含まれます。スクショや SNS / 公開チャットでの共有は避け、自分宛てメモ・iCloud / AirDrop / プライベートチャットなど信頼できる経路で渡してください。受け取った端末で URL を開くか、別端末のカメラで QR を読み込めば自動でセットアップされます。
-      </p>
+      <button class="mini-btn" onclick="handleCloudPull()">クラウドから再取得</button>
+      <button class="mini-btn primary" onclick="handleCloudPush()">この端末の内容を送信</button>
     </div>
 
     <div class="sync-divider"></div>
@@ -965,27 +843,10 @@
     </div>
 
     <div class="warning">
-      ⚠ Personal Access Token はこの端末のローカルストレージにのみ保存されます。共有端末では使用しないでください。
+      ⚠ 同じURLを開けば誰でも同じリストを見られます。公開の場でURLを共有しないでください。
     </div>
 
     <button class="cancel-btn" onclick="closeModal('syncModal')">閉じる</button>
-  </div>
-</div>
-
-<!-- 共有URL取込確認モーダル -->
-<div class="modal-overlay" id="importConfigModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">同期設定を取り込みますか？</div>
-    <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:8px">
-      他端末から共有された同期設定 (PAT / Gist ID) を受け取りました。<br>
-      この端末に取り込んでクラウド同期を有効にしますか？
-    </p>
-    <p id="importOverwriteHint" style="font-size:12px;color:#fbbf24;line-height:1.6;margin-bottom:14px;display:none">
-      ⚠ 既にこの端末には同期設定があります。取り込むと上書きされます。
-    </p>
-    <button class="submit-btn" onclick="acceptIncomingShare()">取り込む</button>
-    <button class="cancel-btn" onclick="dismissIncomingShare()">取り込まない</button>
   </div>
 </div>
 
@@ -999,10 +860,10 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- QR Code library: davidshimjs/qrcodejs (MIT License) -->
-<script>
-var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this.parsedData=[];for(var b=[],d=0,e=this.data.length;e>d;d++){var f=this.data.charCodeAt(d);f>65536?(b[0]=240|(1835008&f)>>>18,b[1]=128|(258048&f)>>>12,b[2]=128|(4032&f)>>>6,b[3]=128|63&f):f>2048?(b[0]=224|(61440&f)>>>12,b[1]=128|(4032&f)>>>6,b[2]=128|63&f):f>128?(b[0]=192|(1984&f)>>>6,b[1]=128|63&f):b[0]=f,this.parsedData=this.parsedData.concat(b)}this.parsedData.length!=this.data.length&&(this.parsedData.unshift(191),this.parsedData.unshift(187),this.parsedData.unshift(239))}function b(a,b){this.typeNumber=a,this.errorCorrectLevel=b,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[]}function i(a,b){if(void 0==a.length)throw new Error(a.length+"/"+b);for(var c=0;c<a.length&&0==a[c];)c++;this.num=new Array(a.length-c+b);for(var d=0;d<a.length-c;d++)this.num[d]=a[d+c]}function j(a,b){this.totalCount=a,this.dataCount=b}function k(){this.buffer=[],this.length=0}function m(){return"undefined"!=typeof CanvasRenderingContext2D}function n(){var a=!1,b=navigator.userAgent;return/android/i.test(b)&&(a=!0,aMat=b.toString().match(/android ([0-9]\.[0-9])/i),aMat&&aMat[1]&&(a=parseFloat(aMat[1]))),a}function r(a,b){for(var c=1,e=s(a),f=0,g=l.length;g>=f;f++){var h=0;switch(b){case d.L:h=l[f][0];break;case d.M:h=l[f][1];break;case d.Q:h=l[f][2];break;case d.H:h=l[f][3]}if(h>=e)break;c++}if(c>l.length)throw new Error("Too long data");return c}function s(a){var b=encodeURI(a).toString().replace(/\%[0-9a-fA-F]{2}/g,"a");return b.length+(b.length!=a?3:0)}a.prototype={getLength:function(){return this.parsedData.length},write:function(a){for(var b=0,c=this.parsedData.length;c>b;b++)a.put(this.parsedData[b],8)}},b.prototype={addData:function(b){var c=new a(b);this.dataList.push(c),this.dataCache=null},isDark:function(a,b){if(0>a||this.moduleCount<=a||0>b||this.moduleCount<=b)throw new Error(a+","+b);return this.modules[a][b]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,c){this.moduleCount=4*this.typeNumber+17,this.modules=new Array(this.moduleCount);for(var d=0;d<this.moduleCount;d++){this.modules[d]=new Array(this.moduleCount);for(var e=0;e<this.moduleCount;e++)this.modules[d][e]=null}this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(a,c),this.typeNumber>=7&&this.setupTypeNumber(a),null==this.dataCache&&(this.dataCache=b.createData(this.typeNumber,this.errorCorrectLevel,this.dataList)),this.mapData(this.dataCache,c)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(-1>=a+c||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)-1>=b+d||this.moduleCount<=b+d||(this.modules[a+c][b+d]=c>=0&&6>=c&&(0==d||6==d)||d>=0&&6>=d&&(0==c||6==c)||c>=2&&4>=c&&d>=2&&4>=d?!0:!1)},getBestMaskPattern:function(){for(var a=0,b=0,c=0;8>c;c++){this.makeImpl(!0,c);var d=f.getLostPoint(this);(0==c||a>d)&&(a=d,b=c)}return b},createMovieClip:function(a,b,c){var d=a.createEmptyMovieClip(b,c),e=1;this.make();for(var f=0;f<this.modules.length;f++)for(var g=f*e,h=0;h<this.modules[f].length;h++){var i=h*e,j=this.modules[f][h];j&&(d.beginFill(0,100),d.moveTo(i,g),d.lineTo(i+e,g),d.lineTo(i+e,g+e),d.lineTo(i,g+e),d.endFill())}return d},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2);for(var b=8;b<this.moduleCount-8;b++)null==this.modules[6][b]&&(this.modules[6][b]=0==b%2)},setupPositionAdjustPattern:function(){for(var a=f.getPatternPosition(this.typeNumber),b=0;b<a.length;b++)for(var c=0;c<a.length;c++){var d=a[b],e=a[c];if(null==this.modules[d][e])for(var g=-2;2>=g;g++)for(var h=-2;2>=h;h++)this.modules[d+g][e+h]=-2==g||2==g||-2==h||2==h||0==g&&0==h?!0:!1}},setupTypeNumber:function(a){for(var b=f.getBCHTypeNumber(this.typeNumber),c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[Math.floor(c/3)][c%3+this.moduleCount-8-3]=d}for(var c=0;18>c;c++){var d=!a&&1==(1&b>>c);this.modules[c%3+this.moduleCount-8-3][Math.floor(c/3)]=d}},setupTypeInfo:function(a,b){for(var c=this.errorCorrectLevel<<3|b,d=f.getBCHTypeInfo(c),e=0;15>e;e++){var g=!a&&1==(1&d>>e);6>e?this.modules[e][8]=g:8>e?this.modules[e+1][8]=g:this.modules[this.moduleCount-15+e][8]=g}for(var e=0;15>e;e++){var g=!a&&1==(1&d>>e);8>e?this.modules[8][this.moduleCount-e-1]=g:9>e?this.modules[8][15-e-1+1]=g:this.modules[8][15-e-1]=g}this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var c=-1,d=this.moduleCount-1,e=7,g=0,h=this.moduleCount-1;h>0;h-=2)for(6==h&&h--;;){for(var i=0;2>i;i++)if(null==this.modules[d][h-i]){var j=!1;g<a.length&&(j=1==(1&a[g]>>>e));var k=f.getMask(b,d,h-i);k&&(j=!j),this.modules[d][h-i]=j,e--,-1==e&&(g++,e=7)}if(d+=c,0>d||this.moduleCount<=d){d-=c,c=-c;break}}}},b.PAD0=236,b.PAD1=17,b.createData=function(a,c,d){for(var e=j.getRSBlocks(a,c),g=new k,h=0;h<d.length;h++){var i=d[h];g.put(i.mode,4),g.put(i.getLength(),f.getLengthInBits(i.mode,a)),i.write(g)}for(var l=0,h=0;h<e.length;h++)l+=e[h].dataCount;if(g.getLengthInBits()>8*l)throw new Error("code length overflow. ("+g.getLengthInBits()+">"+8*l+")");for(g.getLengthInBits()+4<=8*l&&g.put(0,4);0!=g.getLengthInBits()%8;)g.putBit(!1);for(;;){if(g.getLengthInBits()>=8*l)break;if(g.put(b.PAD0,8),g.getLengthInBits()>=8*l)break;g.put(b.PAD1,8)}return b.createBytes(g,e)},b.createBytes=function(a,b){for(var c=0,d=0,e=0,g=new Array(b.length),h=new Array(b.length),j=0;j<b.length;j++){var k=b[j].dataCount,l=b[j].totalCount-k;d=Math.max(d,k),e=Math.max(e,l),g[j]=new Array(k);for(var m=0;m<g[j].length;m++)g[j][m]=255&a.buffer[m+c];c+=k;var n=f.getErrorCorrectPolynomial(l),o=new i(g[j],n.getLength()-1),p=o.mod(n);h[j]=new Array(n.getLength()-1);for(var m=0;m<h[j].length;m++){var q=m+p.getLength()-h[j].length;h[j][m]=q>=0?p.get(q):0}}for(var r=0,m=0;m<b.length;m++)r+=b[m].totalCount;for(var s=new Array(r),t=0,m=0;d>m;m++)for(var j=0;j<b.length;j++)m<g[j].length&&(s[t++]=g[j][m]);for(var m=0;e>m;m++)for(var j=0;j<b.length;j++)m<h[j].length&&(s[t++]=h[j][m]);return s};for(var c={MODE_NUMBER:1,MODE_ALPHA_NUM:2,MODE_8BIT_BYTE:4,MODE_KANJI:8},d={L:1,M:0,Q:3,H:2},e={PATTERN000:0,PATTERN001:1,PATTERN010:2,PATTERN011:3,PATTERN100:4,PATTERN101:5,PATTERN110:6,PATTERN111:7},f={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],G15:1335,G18:7973,G15_MASK:21522,getBCHTypeInfo:function(a){for(var b=a<<10;f.getBCHDigit(b)-f.getBCHDigit(f.G15)>=0;)b^=f.G15<<f.getBCHDigit(b)-f.getBCHDigit(f.G15);return(a<<10|b)^f.G15_MASK},getBCHTypeNumber:function(a){for(var b=a<<12;f.getBCHDigit(b)-f.getBCHDigit(f.G18)>=0;)b^=f.G18<<f.getBCHDigit(b)-f.getBCHDigit(f.G18);return a<<12|b},getBCHDigit:function(a){for(var b=0;0!=a;)b++,a>>>=1;return b},getPatternPosition:function(a){return f.PATTERN_POSITION_TABLE[a-1]},getMask:function(a,b,c){switch(a){case e.PATTERN000:return 0==(b+c)%2;case e.PATTERN001:return 0==b%2;case e.PATTERN010:return 0==c%3;case e.PATTERN011:return 0==(b+c)%3;case e.PATTERN100:return 0==(Math.floor(b/2)+Math.floor(c/3))%2;case e.PATTERN101:return 0==b*c%2+b*c%3;case e.PATTERN110:return 0==(b*c%2+b*c%3)%2;case e.PATTERN111:return 0==(b*c%3+(b+c)%2)%2;default:throw new Error("bad maskPattern:"+a)}},getErrorCorrectPolynomial:function(a){for(var b=new i([1],0),c=0;a>c;c++)b=b.multiply(new i([1,g.gexp(c)],0));return b},getLengthInBits:function(a,b){if(b>=1&&10>b)switch(a){case c.MODE_NUMBER:return 10;case c.MODE_ALPHA_NUM:return 9;case c.MODE_8BIT_BYTE:return 8;case c.MODE_KANJI:return 8;default:throw new Error("mode:"+a)}else if(27>b)switch(a){case c.MODE_NUMBER:return 12;case c.MODE_ALPHA_NUM:return 11;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 10;default:throw new Error("mode:"+a)}else{if(!(41>b))throw new Error("type:"+b);switch(a){case c.MODE_NUMBER:return 14;case c.MODE_ALPHA_NUM:return 13;case c.MODE_8BIT_BYTE:return 16;case c.MODE_KANJI:return 12;default:throw new Error("mode:"+a)}}},getLostPoint:function(a){for(var b=a.getModuleCount(),c=0,d=0;b>d;d++)for(var e=0;b>e;e++){for(var f=0,g=a.isDark(d,e),h=-1;1>=h;h++)if(!(0>d+h||d+h>=b))for(var i=-1;1>=i;i++)0>e+i||e+i>=b||(0!=h||0!=i)&&g==a.isDark(d+h,e+i)&&f++;f>5&&(c+=3+f-5)}for(var d=0;b-1>d;d++)for(var e=0;b-1>e;e++){var j=0;a.isDark(d,e)&&j++,a.isDark(d+1,e)&&j++,a.isDark(d,e+1)&&j++,a.isDark(d+1,e+1)&&j++,(0==j||4==j)&&(c+=3)}for(var d=0;b>d;d++)for(var e=0;b-6>e;e++)a.isDark(d,e)&&!a.isDark(d,e+1)&&a.isDark(d,e+2)&&a.isDark(d,e+3)&&a.isDark(d,e+4)&&!a.isDark(d,e+5)&&a.isDark(d,e+6)&&(c+=40);for(var e=0;b>e;e++)for(var d=0;b-6>d;d++)a.isDark(d,e)&&!a.isDark(d+1,e)&&a.isDark(d+2,e)&&a.isDark(d+3,e)&&a.isDark(d+4,e)&&!a.isDark(d+5,e)&&a.isDark(d+6,e)&&(c+=40);for(var k=0,e=0;b>e;e++)for(var d=0;b>d;d++)a.isDark(d,e)&&k++;var l=Math.abs(100*k/b/b-50)/5;return c+=10*l}},g={glog:function(a){if(1>a)throw new Error("glog("+a+")");return g.LOG_TABLE[a]},gexp:function(a){for(;0>a;)a+=255;for(;a>=256;)a-=255;return g.EXP_TABLE[a]},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)},h=0;8>h;h++)g.EXP_TABLE[h]=1<<h;for(var h=8;256>h;h++)g.EXP_TABLE[h]=g.EXP_TABLE[h-4]^g.EXP_TABLE[h-5]^g.EXP_TABLE[h-6]^g.EXP_TABLE[h-8];for(var h=0;255>h;h++)g.LOG_TABLE[g.EXP_TABLE[h]]=h;i.prototype={get:function(a){return this.num[a]},getLength:function(){return this.num.length},multiply:function(a){for(var b=new Array(this.getLength()+a.getLength()-1),c=0;c<this.getLength();c++)for(var d=0;d<a.getLength();d++)b[c+d]^=g.gexp(g.glog(this.get(c))+g.glog(a.get(d)));return new i(b,0)},mod:function(a){if(this.getLength()-a.getLength()<0)return this;for(var b=g.glog(this.get(0))-g.glog(a.get(0)),c=new Array(this.getLength()),d=0;d<this.getLength();d++)c[d]=this.get(d);for(var d=0;d<a.getLength();d++)c[d]^=g.gexp(g.glog(a.get(d))+b);return new i(c,0).mod(a)}},j.RS_BLOCK_TABLE=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],j.getRSBlocks=function(a,b){var c=j.getRsBlockTable(a,b);if(void 0==c)throw new Error("bad rs block @ typeNumber:"+a+"/errorCorrectLevel:"+b);for(var d=c.length/3,e=[],f=0;d>f;f++)for(var g=c[3*f+0],h=c[3*f+1],i=c[3*f+2],k=0;g>k;k++)e.push(new j(h,i));return e},j.getRsBlockTable=function(a,b){switch(b){case d.L:return j.RS_BLOCK_TABLE[4*(a-1)+0];case d.M:return j.RS_BLOCK_TABLE[4*(a-1)+1];case d.Q:return j.RS_BLOCK_TABLE[4*(a-1)+2];case d.H:return j.RS_BLOCK_TABLE[4*(a-1)+3];default:return void 0}},k.prototype={get:function(a){var b=Math.floor(a/8);return 1==(1&this.buffer[b]>>>7-a%8)},put:function(a,b){for(var c=0;b>c;c++)this.putBit(1==(1&a>>>b-c-1))},getLengthInBits:function(){return this.length},putBit:function(a){var b=Math.floor(this.length/8);this.buffer.length<=b&&this.buffer.push(0),a&&(this.buffer[b]|=128>>>this.length%8),this.length++}};var l=[[17,14,11,7],[32,26,20,14],[53,42,32,24],[78,62,46,34],[106,84,60,44],[134,106,74,58],[154,122,86,64],[192,152,108,84],[230,180,130,98],[271,213,151,119],[321,251,177,137],[367,287,203,155],[425,331,241,177],[458,362,258,194],[520,412,292,220],[586,450,322,250],[644,504,364,280],[718,560,394,310],[792,624,442,338],[858,666,482,382],[929,711,509,403],[1003,779,565,439],[1091,857,611,461],[1171,911,661,511],[1273,997,715,535],[1367,1059,751,593],[1465,1125,805,625],[1528,1190,868,658],[1628,1264,908,698],[1732,1370,982,742],[1840,1452,1030,790],[1952,1538,1112,842],[2068,1628,1168,898],[2188,1722,1228,958],[2303,1809,1283,983],[2431,1911,1351,1051],[2563,1989,1423,1093],[2699,2099,1499,1139],[2809,2213,1579,1219],[2953,2331,1663,1273]],o=function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){function g(a,b){var c=document.createElementNS("http://www.w3.org/2000/svg",a);for(var d in b)b.hasOwnProperty(d)&&c.setAttribute(d,b[d]);return c}var b=this._htOption,c=this._el,d=a.getModuleCount();Math.floor(b.width/d),Math.floor(b.height/d),this.clear();var h=g("svg",{viewBox:"0 0 "+String(d)+" "+String(d),width:"100%",height:"100%",fill:b.colorLight});h.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink"),c.appendChild(h),h.appendChild(g("rect",{fill:b.colorDark,width:"1",height:"1",id:"template"}));for(var i=0;d>i;i++)for(var j=0;d>j;j++)if(a.isDark(i,j)){var k=g("use",{x:String(i),y:String(j)});k.setAttributeNS("http://www.w3.org/1999/xlink","href","#template"),h.appendChild(k)}},a.prototype.clear=function(){for(;this._el.hasChildNodes();)this._el.removeChild(this._el.lastChild)},a}(),p="svg"===document.documentElement.tagName.toLowerCase(),q=p?o:m()?function(){function a(){this._elImage.src=this._elCanvas.toDataURL("image/png"),this._elImage.style.display="block",this._elCanvas.style.display="none"}function d(a,b){var c=this;if(c._fFail=b,c._fSuccess=a,null===c._bSupportDataURI){var d=document.createElement("img"),e=function(){c._bSupportDataURI=!1,c._fFail&&_fFail.call(c)},f=function(){c._bSupportDataURI=!0,c._fSuccess&&c._fSuccess.call(c)};return d.onabort=e,d.onerror=e,d.onload=f,d.src="data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==",void 0}c._bSupportDataURI===!0&&c._fSuccess?c._fSuccess.call(c):c._bSupportDataURI===!1&&c._fFail&&c._fFail.call(c)}if(this._android&&this._android<=2.1){var b=1/window.devicePixelRatio,c=CanvasRenderingContext2D.prototype.drawImage;CanvasRenderingContext2D.prototype.drawImage=function(a,d,e,f,g,h,i,j){if("nodeName"in a&&/img/i.test(a.nodeName))for(var l=arguments.length-1;l>=1;l--)arguments[l]=arguments[l]*b;else"undefined"==typeof j&&(arguments[1]*=b,arguments[2]*=b,arguments[3]*=b,arguments[4]*=b);c.apply(this,arguments)}}var e=function(a,b){this._bIsPainted=!1,this._android=n(),this._htOption=b,this._elCanvas=document.createElement("canvas"),this._elCanvas.width=b.width,this._elCanvas.height=b.height,a.appendChild(this._elCanvas),this._el=a,this._oContext=this._elCanvas.getContext("2d"),this._bIsPainted=!1,this._elImage=document.createElement("img"),this._elImage.style.display="none",this._el.appendChild(this._elImage),this._bSupportDataURI=null};return e.prototype.draw=function(a){var b=this._elImage,c=this._oContext,d=this._htOption,e=a.getModuleCount(),f=d.width/e,g=d.height/e,h=Math.round(f),i=Math.round(g);b.style.display="none",this.clear();for(var j=0;e>j;j++)for(var k=0;e>k;k++){var l=a.isDark(j,k),m=k*f,n=j*g;c.strokeStyle=l?d.colorDark:d.colorLight,c.lineWidth=1,c.fillStyle=l?d.colorDark:d.colorLight,c.fillRect(m,n,f,g),c.strokeRect(Math.floor(m)+.5,Math.floor(n)+.5,h,i),c.strokeRect(Math.ceil(m)-.5,Math.ceil(n)-.5,h,i)}this._bIsPainted=!0},e.prototype.makeImage=function(){this._bIsPainted&&d.call(this,a)},e.prototype.isPainted=function(){return this._bIsPainted},e.prototype.clear=function(){this._oContext.clearRect(0,0,this._elCanvas.width,this._elCanvas.height),this._bIsPainted=!1},e.prototype.round=function(a){return a?Math.floor(1e3*a)/1e3:a},e}():function(){var a=function(a,b){this._el=a,this._htOption=b};return a.prototype.draw=function(a){for(var b=this._htOption,c=this._el,d=a.getModuleCount(),e=Math.floor(b.width/d),f=Math.floor(b.height/d),g=['<table style="border:0;border-collapse:collapse;">'],h=0;d>h;h++){g.push("<tr>");for(var i=0;d>i;i++)g.push('<td style="border:0;border-collapse:collapse;padding:0;margin:0;width:'+e+"px;height:"+f+"px;background-color:"+(a.isDark(h,i)?b.colorDark:b.colorLight)+';"></td>');g.push("</tr>")}g.push("</table>"),c.innerHTML=g.join("");var j=c.childNodes[0],k=(b.width-j.offsetWidth)/2,l=(b.height-j.offsetHeight)/2;k>0&&l>0&&(j.style.margin=l+"px "+k+"px")},a.prototype.clear=function(){this._el.innerHTML=""},a}();QRCode=function(a,b){if(this._htOption={width:256,height:256,typeNumber:4,colorDark:"#000000",colorLight:"#ffffff",correctLevel:d.H},"string"==typeof b&&(b={text:b}),b)for(var c in b)this._htOption[c]=b[c];"string"==typeof a&&(a=document.getElementById(a)),this._android=n(),this._el=a,this._oQRCode=null,this._oDrawing=new q(this._el,this._htOption),this._htOption.text&&this.makeCode(this._htOption.text)},QRCode.prototype.makeCode=function(a){this._oQRCode=new b(r(a,this._htOption.correctLevel),this._htOption.correctLevel),this._oQRCode.addData(a),this._oQRCode.make(),this._el.title=a,this._oDrawing.draw(this._oQRCode),this.makeImage()},QRCode.prototype.makeImage=function(){"function"==typeof this._oDrawing.makeImage&&(!this._android||this._android>=3)&&this._oDrawing.makeImage()},QRCode.prototype.clear=function(){this._oDrawing.clear()},QRCode.CorrectLevel=d}();
-</script>
+<!-- Firebase SDK (compat build) -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 
 <script>
 const STORAGE_KEY = 'asmr_videos_v3';
@@ -1011,9 +872,21 @@ const CHANNELS_KEY = 'asmr_channels_v3';
 const STORAGE_KEY_V2 = 'asmr_videos_v2';
 const CAT_KEY_V2 = 'asmr_cats_v2';
 const META_KEY = 'asmr_meta_v1';
-const SYNC_KEY = 'asmr_sync_v1';
-const GIST_FILENAME = 'asmr-list.json';
+const LEGACY_SYNC_KEY = 'asmr_sync_v1';
 const PUSH_DEBOUNCE_MS = 1500;
+
+// Firebase の Web 設定は公開前提の値 (書き込み制御は Firestore ルール側で行う)
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDl6tizWK1KkfqIR2rgdK1Ga3IP_DbBYZk",
+  authDomain: "asmr-list-b8bac.firebaseapp.com",
+  projectId: "asmr-list-b8bac",
+  storageBucket: "asmr-list-b8bac.firebasestorage.app",
+  messagingSenderId: "593232059373",
+  appId: "1:593232059373:web:5b3dd18bf03dba94b425e4"
+};
+const CLOUD_COLLECTION = 'asmr_list';
+const CLOUD_DOC = 'main';
+const FIREBASE_SDK_FALLBACK = '9.23.0';
 const DEFAULT_TAGS = ["癒し系","囁き系","環境音","バイノーラル","その他"];
 
 function migrateV2ToV3() {
@@ -1081,7 +954,8 @@ function normalizeChannels() {
 }
 normalizeChannels();
 let meta = JSON.parse(localStorage.getItem(META_KEY) || '{}');
-let syncCfg = JSON.parse(localStorage.getItem(SYNC_KEY) || '{}');
+// 旧 GitHub Gist 同期で端末に残っている PAT を破棄する
+localStorage.removeItem(LEGACY_SYNC_KEY);
 let tagFilter = '';
 let channelFilter = '';
 let editingId = null;
@@ -1091,13 +965,17 @@ let manageKind = 'tag';
 let selectedTags = [];
 let selectedChannel = '';
 
-function save() {
-  meta.updatedAt = new Date().toISOString();
+function persistLocal() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
   localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
   localStorage.setItem(CHANNELS_KEY, JSON.stringify(channels));
   localStorage.setItem(META_KEY, JSON.stringify(meta));
-  if (syncCfg.autoSync && syncCfg.pat && syncCfg.gistId) schedulePush();
+}
+
+function save() {
+  meta.updatedAt = new Date().toISOString();
+  persistLocal();
+  schedulePush();
 }
 
 function migrateRemoteToV2(remote) {
@@ -1120,36 +998,11 @@ function migrateRemoteToV2(remote) {
   };
 }
 
-function persistSyncCfg() {
-  localStorage.setItem(SYNC_KEY, JSON.stringify(syncCfg));
-}
-
-function schedulePush() {
-  clearTimeout(pushTimer);
-  pushTimer = setTimeout(() => {
-    pushToGist().catch(e => setStatus('err', e.message));
-  }, PUSH_DEBOUNCE_MS);
-}
-
-async function ghApi(method, path, body) {
-  if (!syncCfg.pat) throw new Error('PAT 未設定');
-  const res = await fetch(`https://api.github.com${path}`, {
-    method,
-    headers: {
-      'Authorization': `Bearer ${syncCfg.pat}`,
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      ...(body ? { 'Content-Type': 'application/json' } : {})
-    },
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if (!res.ok) {
-    let detail = '';
-    try { detail = (await res.json()).message || ''; } catch {}
-    throw new Error(`${res.status} ${detail || res.statusText}`);
-  }
-  return res.json();
-}
+/* ---------- クラウド同期 (Firebase Firestore) ---------- */
+let cloudDoc = null;        // Firestore の DocumentReference
+let cloudReady = false;     // 認証と購読が完了したか
+let applyingRemote = false; // リモート適用中の push 抑止フラグ
+let lastSyncedAt = null;
 
 function buildPayload() {
   return {
@@ -1161,165 +1014,169 @@ function buildPayload() {
   };
 }
 
-async function pushToGist() {
-  if (!syncCfg.gistId) throw new Error('Gist ID 未設定');
-  setStatus('syncing');
-  await ghApi('PATCH', `/gists/${syncCfg.gistId}`, {
-    files: { [GIST_FILENAME]: { content: JSON.stringify(buildPayload(), null, 2) } }
-  });
-  syncCfg.lastSyncedAt = new Date().toISOString();
-  persistSyncCfg();
-  setStatus('ok');
+function isEmptyData(vs, chs) {
+  return !vs.length && !chs.length;
 }
 
-async function pullFromGist() {
-  if (!syncCfg.gistId) throw new Error('Gist ID 未設定');
-  setStatus('syncing');
-  const data = await ghApi('GET', `/gists/${syncCfg.gistId}`);
-  const file = data.files && data.files[GIST_FILENAME];
-  if (!file) throw new Error(`Gist に ${GIST_FILENAME} が見つかりません`);
-  let content = file.content;
-  if (file.truncated && file.raw_url) {
-    const r = await fetch(file.raw_url);
-    if (!r.ok) throw new Error(`raw fetch ${r.status}`);
-    content = await r.text();
-  }
-  return JSON.parse(content);
-}
-
-async function createGist() {
-  setStatus('syncing');
-  const res = await ghApi('POST', '/gists', {
-    description: 'ASMR Sleep Playlist sync',
-    public: false,
-    files: { [GIST_FILENAME]: { content: JSON.stringify(buildPayload(), null, 2) } }
-  });
-  syncCfg.gistId = res.id;
-  syncCfg.autoSync = true;
-  syncCfg.lastSyncedAt = new Date().toISOString();
-  persistSyncCfg();
-  setStatus('ok');
-  return res.id;
-}
-
-async function testConnection() {
-  setStatus('syncing');
-  await ghApi('GET', '/user');
-  setStatus('ok');
+function schedulePush() {
+  if (!cloudDoc || applyingRemote) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    pushToCloud().catch(e => setStatus('err', e.message));
+  }, PUSH_DEBOUNCE_MS);
 }
 
 function applyRemote(remote) {
   const r = migrateRemoteToV2(remote);
+  applyingRemote = true;
   videos = r.videos;
   if (r.tags.length) tags = r.tags;
   channels = r.channels;
   normalizeChannels();
   meta.updatedAt = r.updatedAt || new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
-  localStorage.setItem(TAGS_KEY, JSON.stringify(tags));
-  localStorage.setItem(CHANNELS_KEY, JSON.stringify(channels));
-  localStorage.setItem(META_KEY, JSON.stringify(meta));
+  persistLocal();
+  applyingRemote = false;
   renderFilterTabs();
   renderVideos();
 }
 
-async function loadSync() {
-  if (!syncCfg.pat || !syncCfg.gistId) { setStatus(null); return; }
-  try {
-    const remote = await pullFromGist();
-    const localTs = meta.updatedAt || '';
-    const remoteTs = remote.updatedAt || '';
-    if (remoteTs && remoteTs > localTs) {
-      applyRemote(remote);
-      showToast('リモートから取得しました 🌙');
-    } else if (localTs && localTs > remoteTs) {
-      await pushToGist();
-      showToast('ローカルを同期しました');
-    }
-    syncCfg.lastSyncedAt = new Date().toISOString();
-    persistSyncCfg();
+async function pushToCloud() {
+  if (!cloudDoc) return;
+  setStatus('syncing');
+  if (!meta.updatedAt) {
+    meta.updatedAt = new Date().toISOString();
+    persistLocal();
+  }
+  await cloudDoc.set(buildPayload());
+  setStatus('ok');
+}
+
+// クラウドの内容を受け取ったときの反映判断 (updatedAt の新しい方を採用)
+function onCloudSnapshot(snap) {
+  if (snap.metadata.hasPendingWrites) return; // 自分の書き込みの反射は無視
+  cloudReady = true;
+
+  if (!snap.exists) { // 初回: この端末の内容でクラウドを初期化
+    pushToCloud().catch(e => setStatus('err', e.message));
+    return;
+  }
+
+  const r = migrateRemoteToV2(snap.data() || {});
+  const remoteTs = r.updatedAt || '';
+  const localTs = meta.updatedAt || '';
+  const remoteEmpty = isEmptyData(r.videos, r.channels);
+  const localEmpty = isEmptyData(videos, channels);
+
+  // 空のクラウドデータで手元のリストを消さない
+  if (remoteEmpty && !localEmpty) {
+    pushToCloud().catch(e => setStatus('err', e.message));
+  } else if (remoteTs > localTs) {
+    applyRemote(r);
     setStatus('ok');
+    showToast('クラウドから同期しました 🌙');
+  } else if (localTs > remoteTs) {
+    pushToCloud().catch(e => setStatus('err', e.message));
+  } else {
+    setStatus('ok');
+  }
+}
+
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error(src));
+    document.head.appendChild(s);
+  });
+}
+
+// <script> タグでの読み込みに失敗した場合の予備 (CDN 一時障害・別バージョン)
+async function ensureFirebaseSdk() {
+  const loaded = () => typeof firebase !== 'undefined' && !!firebase.initializeApp;
+  if (loaded()) return true;
+  try {
+    for (const m of ['firebase-app-compat.js', 'firebase-auth-compat.js', 'firebase-firestore-compat.js']) {
+      await loadScript(`https://www.gstatic.com/firebasejs/${FIREBASE_SDK_FALLBACK}/${m}`);
+    }
+  } catch {
+    return false;
+  }
+  return loaded();
+}
+
+async function initCloud() {
+  if (!(await ensureFirebaseSdk())) {
+    setStatus('err', 'SDK を読み込めません (オフライン?)');
+    return;
+  }
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    setStatus('syncing', '接続中…');
+    firebase.auth().signInAnonymously()
+      .then(() => {
+        cloudDoc = firebase.firestore().collection(CLOUD_COLLECTION).doc(CLOUD_DOC);
+        cloudDoc.onSnapshot(onCloudSnapshot, err => setStatus('err', err.message));
+      })
+      .catch(e => setStatus('err', e.message));
   } catch (e) {
     setStatus('err', e.message);
   }
 }
 
 function setStatus(kind, msg) {
+  if (kind === 'ok') lastSyncedAt = new Date();
   const el = document.getElementById('syncStatus');
   if (!el) return;
   el.classList.remove('ok', 'err', 'syncing');
   if (kind === 'syncing') {
     el.classList.add('syncing');
-    el.textContent = '同期中…';
+    el.textContent = msg || '同期中…';
   } else if (kind === 'ok') {
     el.classList.add('ok');
-    const t = syncCfg.lastSyncedAt ? new Date(syncCfg.lastSyncedAt) : new Date();
+    const t = lastSyncedAt || new Date();
     const hh = String(t.getHours()).padStart(2, '0');
     const mm = String(t.getMinutes()).padStart(2, '0');
     el.textContent = `同期済み ${hh}:${mm}`;
   } else if (kind === 'err') {
-    el.textContent = `エラー: ${msg || ''}`.slice(0, 80);
     el.classList.add('err');
+    el.textContent = `エラー: ${msg || ''}`.slice(0, 80);
   } else {
-    el.textContent = (syncCfg.pat && syncCfg.gistId) ? '待機中' : '未設定';
+    el.textContent = cloudReady ? '待機中' : '接続中…';
   }
 }
 
 function openSyncModal() {
-  document.getElementById('syncPat').value = syncCfg.pat || '';
-  document.getElementById('syncGistId').value = syncCfg.gistId || '';
-  document.getElementById('syncAuto').checked = syncCfg.autoSync !== false;
   document.getElementById('exportPreview').value = '';
   document.getElementById('importText').value = '';
-  setStatus(null);
-  if (syncCfg.lastSyncedAt && syncCfg.pat && syncCfg.gistId) setStatus('ok');
   openModal('syncModal');
 }
 
-function readSyncForm() {
-  syncCfg.pat = document.getElementById('syncPat').value.trim();
-  syncCfg.gistId = document.getElementById('syncGistId').value.trim();
-  syncCfg.autoSync = document.getElementById('syncAuto').checked;
-  persistSyncCfg();
-}
-
-function saveSyncSettings(close) {
-  readSyncForm();
-  showToast('設定を保存しました');
-  if (close) closeModal('syncModal');
-}
-
-async function handleCreateGist() {
-  readSyncForm();
-  if (!syncCfg.pat) { showToast('先に PAT を入力してください'); return; }
+async function handleCloudPull() {
+  if (!cloudDoc) { showToast('クラウドに接続できていません'); return; }
   try {
-    const id = await createGist();
-    document.getElementById('syncGistId').value = id;
-    document.getElementById('syncAuto').checked = true;
-    showToast('Gist を作成しました 🌙');
+    setStatus('syncing');
+    const snap = await cloudDoc.get();
+    if (!snap.exists) { showToast('クラウドにまだデータがありません'); setStatus(null); return; }
+    applyRemote(snap.data());
+    setStatus('ok');
+    showToast('クラウドから取得しました 🌙');
   } catch (e) {
     setStatus('err', e.message);
-    showToast('作成失敗: ' + e.message);
+    showToast('取得失敗: ' + e.message);
   }
 }
 
-async function handleTestConnection() {
-  readSyncForm();
+async function handleCloudPush() {
+  if (!cloudDoc) { showToast('クラウドに接続できていません'); return; }
   try {
-    await testConnection();
-    showToast('接続OK');
+    meta.updatedAt = new Date().toISOString();
+    persistLocal();
+    await pushToCloud();
+    showToast('クラウドに送信しました');
   } catch (e) {
     setStatus('err', e.message);
-    showToast('接続失敗: ' + e.message);
-  }
-}
-
-async function handleSyncNow() {
-  readSyncForm();
-  if (!syncCfg.pat || !syncCfg.gistId) { showToast('PAT と Gist ID を入力してください'); return; }
-  await loadSync();
-  if (!document.getElementById('syncStatus').classList.contains('err')) {
-    showToast('同期しました');
+    showToast('送信失敗: ' + e.message);
   }
 }
 
@@ -1374,122 +1231,6 @@ function applyImport(text, mode) {
   renderVideos();
   closeModal('syncModal');
   showToast(mode === 'replace' ? '上書きインポートしました' : 'マージインポートしました');
-}
-
-// PAT 表示トグル
-function togglePatVisibility() {
-  const inp = document.getElementById('syncPat');
-  const eye = document.getElementById('patEye');
-  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
-  else { inp.type = 'password'; eye.textContent = '👁'; }
-}
-
-// base64url エンコード/デコード
-function toBase64Url(str) {
-  const b64 = btoa(unescape(encodeURIComponent(str)));
-  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-function fromBase64Url(s) {
-  const pad = s.length % 4 === 0 ? '' : '='.repeat(4 - (s.length % 4));
-  const b64 = s.replace(/-/g, '+').replace(/_/g, '/') + pad;
-  return decodeURIComponent(escape(atob(b64)));
-}
-
-// 設定共有 URL 発行
-let qrInstance = null;
-function generateShareUrl() {
-  readSyncForm();
-  if (!syncCfg.pat || !syncCfg.gistId) {
-    showToast('PAT と Gist ID の両方を入力してから発行してください'); return;
-  }
-  const payload = JSON.stringify({ v: 1, pat: syncCfg.pat, gistId: syncCfg.gistId });
-  const encoded = toBase64Url(payload);
-  const url = `${location.origin}${location.pathname}?sync=${encoded}`;
-  document.getElementById('shareUrlText').value = url;
-  document.getElementById('shareBox').classList.add('open');
-  const qrEl = document.getElementById('qrCanvas');
-  qrEl.innerHTML = '';
-  qrInstance = new QRCode(qrEl, {
-    text: url,
-    width: 200,
-    height: 200,
-    colorDark: '#000000',
-    colorLight: '#ffffff',
-    correctLevel: QRCode.CorrectLevel.M
-  });
-}
-
-function copyShareUrl() {
-  const ta = document.getElementById('shareUrlText');
-  ta.select();
-  ta.setSelectionRange(0, 99999);
-  const text = ta.value;
-  const done = () => showToast('コピーしました');
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).then(done, () => {
-      try { document.execCommand('copy'); done(); } catch { showToast('コピー失敗'); }
-    });
-  } else {
-    try { document.execCommand('copy'); done(); } catch { showToast('コピー失敗'); }
-  }
-}
-
-function closeShareBox() {
-  document.getElementById('shareBox').classList.remove('open');
-  document.getElementById('shareUrlText').value = '';
-  document.getElementById('qrCanvas').innerHTML = '';
-}
-
-// 共有 URL 取込
-let pendingShare = null;
-function clearSyncParamFromUrl() {
-  if (location.search.includes('sync=')) {
-    const u = new URL(location.href);
-    u.searchParams.delete('sync');
-    history.replaceState({}, '', u.pathname + (u.search || '') + u.hash);
-  }
-}
-
-function handleIncomingShare() {
-  const param = new URLSearchParams(location.search).get('sync');
-  if (!param) return false;
-  let parsed;
-  try { parsed = JSON.parse(fromBase64Url(param)); }
-  catch {
-    clearSyncParamFromUrl();
-    showToast('共有URLの形式が不正です');
-    return false;
-  }
-  if (!parsed || !parsed.pat || !parsed.gistId) {
-    clearSyncParamFromUrl();
-    showToast('共有URLの中身が不正です');
-    return false;
-  }
-  pendingShare = parsed;
-  document.getElementById('importOverwriteHint').style.display =
-    (syncCfg.pat || syncCfg.gistId) ? 'block' : 'none';
-  openModal('importConfigModal');
-  return true;
-}
-
-function acceptIncomingShare() {
-  if (!pendingShare) { closeModal('importConfigModal'); return; }
-  syncCfg.pat = pendingShare.pat;
-  syncCfg.gistId = pendingShare.gistId;
-  syncCfg.autoSync = true;
-  persistSyncCfg();
-  pendingShare = null;
-  clearSyncParamFromUrl();
-  closeModal('importConfigModal');
-  showToast('設定を取り込みました 🌙');
-  loadSync();
-}
-
-function dismissIncomingShare() {
-  pendingShare = null;
-  clearSyncParamFromUrl();
-  closeModal('importConfigModal');
-  showToast('取り込みをキャンセルしました');
 }
 
 function extractVideoId(url) {
@@ -1948,14 +1689,10 @@ document.getElementById('importFile').addEventListener('change', ev => {
   ev.target.value = '';
 });
 
-// 初期表示
+// 初期表示 (ローカルキャッシュを即描画してからクラウドに接続)
 renderFilterTabs();
 renderVideos();
-
-// ?sync= があれば取込確認モーダルを先に出す。確定/拒否後に loadSync する。
-if (!handleIncomingShare()) {
-  loadSync();
-}
+initCloud();
 </script>
 
 </body>
