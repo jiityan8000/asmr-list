@@ -2,864 +2,941 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="睡眠ASMR">
+<meta name="theme-color" content="#141218" id="themeColorMeta">
 <title>睡眠ASMR</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2313141c'/><circle cx='41' cy='32' r='20' fill='%23c084fc'/><circle cx='51' cy='32' r='20' fill='%2313141c'/></svg>">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%2313141c'/><circle cx='41' cy='32' r='20' fill='%23c084fc'/><circle cx='51' cy='32' r='20' fill='%2313141c'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Noto+Sans+JP:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  /* =========================================================
+     Material Design 3 デザイントークン
+     - :root はライトテーマ
+     - system 追従は @media、手動切替は [data-theme] で上書き
+     ========================================================= */
   :root {
-    --bg: #0d0e14;
-    --surface: #13141c;
-    --surface2: #1a1b26;
-    --border: rgba(255,255,255,0.07);
-    --accent: #7c6aff;
-    --accent2: #c084fc;
-    --text: #e8e6f0;
-    --muted: #6b6880;
-    --star: #fbbf24;
+    --md-primary: #6750a4;
+    --md-on-primary: #ffffff;
+    --md-primary-container: #eaddff;
+    --md-on-primary-container: #21005d;
+    --md-secondary-container: #e8def8;
+    --md-on-secondary-container: #1d192b;
+    --md-tertiary-container: #ffd8e4;
+    --md-on-tertiary-container: #31111d;
+    --md-error: #b3261e;
+    --md-on-error: #ffffff;
+    --md-error-container: #f9dedc;
+    --md-on-error-container: #410e0b;
+    --md-surface: #fef7ff;
+    --md-surface-container-lowest: #ffffff;
+    --md-surface-container-low: #f7f2fa;
+    --md-surface-container: #f3edf7;
+    --md-surface-container-high: #ece6f0;
+    --md-surface-container-highest: #e6e0e9;
+    --md-on-surface: #1d1b20;
+    --md-on-surface-variant: #49454f;
+    --md-outline: #79747e;
+    --md-outline-variant: #cac4d0;
+    --md-inverse-surface: #322f35;
+    --md-inverse-on-surface: #f5eff7;
+    --md-scrim: rgba(0, 0, 0, 0.4);
+    --md-shadow: rgba(0, 0, 0, 0.15);
+    --md-success: #146c2e;
+
+    /* state layer の不透明度 (MD3 仕様値) */
+    --state-hover: 0.08;
+    --state-press: 0.12;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --md-primary: #d0bcff;
+      --md-on-primary: #381e72;
+      --md-primary-container: #4f378b;
+      --md-on-primary-container: #eaddff;
+      --md-secondary-container: #4a4458;
+      --md-on-secondary-container: #e8def8;
+      --md-tertiary-container: #633b48;
+      --md-on-tertiary-container: #ffd8e4;
+      --md-error: #f2b8b5;
+      --md-on-error: #601410;
+      --md-error-container: #8c1d18;
+      --md-on-error-container: #f9dedc;
+      --md-surface: #141218;
+      --md-surface-container-lowest: #0f0d13;
+      --md-surface-container-low: #1d1b20;
+      --md-surface-container: #211f26;
+      --md-surface-container-high: #2b2930;
+      --md-surface-container-highest: #36343b;
+      --md-on-surface: #e6e0e9;
+      --md-on-surface-variant: #cac4d0;
+      --md-outline: #938f99;
+      --md-outline-variant: #49454f;
+      --md-inverse-surface: #e6e0e9;
+      --md-inverse-on-surface: #322f35;
+      --md-scrim: rgba(0, 0, 0, 0.6);
+      --md-shadow: rgba(0, 0, 0, 0.5);
+      --md-success: #7ddc96;
+
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --md-primary: #d0bcff;
+    --md-on-primary: #381e72;
+    --md-primary-container: #4f378b;
+    --md-on-primary-container: #eaddff;
+    --md-secondary-container: #4a4458;
+    --md-on-secondary-container: #e8def8;
+    --md-tertiary-container: #633b48;
+    --md-on-tertiary-container: #ffd8e4;
+    --md-error: #f2b8b5;
+    --md-on-error: #601410;
+    --md-error-container: #8c1d18;
+    --md-on-error-container: #f9dedc;
+    --md-surface: #141218;
+    --md-surface-container-lowest: #0f0d13;
+    --md-surface-container-low: #1d1b20;
+    --md-surface-container: #211f26;
+    --md-surface-container-high: #2b2930;
+    --md-surface-container-highest: #36343b;
+    --md-on-surface: #e6e0e9;
+    --md-on-surface-variant: #cac4d0;
+    --md-outline: #938f99;
+    --md-outline-variant: #49454f;
+    --md-inverse-surface: #e6e0e9;
+    --md-inverse-on-surface: #322f35;
+    --md-scrim: rgba(0, 0, 0, 0.6);
+    --md-shadow: rgba(0, 0, 0, 0.5);
+    --md-success: #7ddc96;
+
+    color-scheme: dark;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-weight: 300;
+    background: var(--md-surface);
+    color: var(--md-on-surface);
+    font-family: 'Roboto', 'Noto Sans JP', system-ui, -apple-system, 'Hiragino Sans', sans-serif;
     min-height: 100dvh;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* 背景の星くず */
-  body::before {
+  svg { display: block; fill: currentColor; }
+
+  /* ---------- タップ可能な要素の共通土台 (state layer) ---------- */
+  .touchable {
+    position: relative;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .touchable::after {
     content: '';
-    position: fixed;
+    position: absolute;
     inset: 0;
-    background-image:
-      radial-gradient(1px 1px at 20% 15%, rgba(255,255,255,0.3) 0%, transparent 100%),
-      radial-gradient(1px 1px at 70% 30%, rgba(255,255,255,0.2) 0%, transparent 100%),
-      radial-gradient(1px 1px at 40% 60%, rgba(255,255,255,0.15) 0%, transparent 100%),
-      radial-gradient(1px 1px at 85% 70%, rgba(255,255,255,0.25) 0%, transparent 100%),
-      radial-gradient(1px 1px at 10% 85%, rgba(255,255,255,0.2) 0%, transparent 100%),
-      radial-gradient(1px 1px at 55% 90%, rgba(255,255,255,0.1) 0%, transparent 100%),
-      radial-gradient(600px 400px at 30% 20%, rgba(124,106,255,0.06) 0%, transparent 70%),
-      radial-gradient(400px 600px at 80% 80%, rgba(192,132,252,0.05) 0%, transparent 70%);
+    background: currentColor;
+    opacity: 0;
+    transition: opacity 0.12s;
     pointer-events: none;
-    z-index: 0;
+  }
+  .touchable:active::after { opacity: var(--state-press); }
+  @media (hover: hover) {
+    .touchable:hover::after { opacity: var(--state-hover); }
+  }
+  .touchable:focus-visible {
+    outline: 3px solid var(--md-primary);
+    outline-offset: 2px;
   }
 
-  /* ヘッダー */
-  header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(13,14,20,0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 20px 12px;
-  }
-
-  .header-top {
+  /* ---------- アイコンボタン (48dp タップ領域) ---------- */
+  .icon-btn {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
+    justify-content: center;
+    color: var(--md-on-surface-variant);
+    flex-shrink: 0;
   }
+  .icon-btn svg { width: 24px; height: 24px; }
 
-  .logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 22px;
-    letter-spacing: 0.02em;
-    background: linear-gradient(135deg, #c084fc, #7c6aff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-
-  .logo span {
-    font-style: italic;
-    font-size: 13px;
-    -webkit-text-fill-color: var(--muted);
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    margin-left: 6px;
-  }
-
-  .add-btn {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: 1px solid rgba(124,106,255,0.4);
-    background: rgba(124,106,255,0.12);
-    color: var(--accent);
-    font-size: 20px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .add-btn:active { transform: scale(0.92); background: rgba(124,106,255,0.25); }
-
-  /* カテゴリタブ */
-  .category-scroll {
+  /* ---------- トップアプリバー ---------- */
+  .app-bar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
     display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 64px;
+    padding: 8px 4px 8px 16px;
+    padding-top: calc(8px + env(safe-area-inset-top));
+    background: var(--md-surface-container);
+    color: var(--md-on-surface);
+  }
+  .app-bar__title {
+    flex: 1;
+    font-size: 22px;
+    font-weight: 400;
+    line-height: 28px;
+    letter-spacing: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ---------- チップ (MD3 filter chip / 48dp 高さ) ---------- */
+  .chip-bar {
+    position: sticky;
+    top: calc(64px + env(safe-area-inset-top));
+    z-index: 30;
+    background: var(--md-surface);
+    border-bottom: 1px solid var(--md-outline-variant);
+  }
+  .chip-scroller {
+    display: flex;
+    align-items: center;
     gap: 8px;
     overflow-x: auto;
     scrollbar-width: none;
-    padding-bottom: 2px;
+    padding: 8px 16px;
+    scroll-padding: 16px;
   }
-  .category-scroll::-webkit-scrollbar { display: none; }
+  .chip-scroller::-webkit-scrollbar { display: none; }
 
-  .cat-chip {
+  .chip {
     flex-shrink: 0;
-    padding: 5px 14px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 48px;
+    padding: 0 20px;
+    border-radius: 12px;
+    border: 1px solid var(--md-outline);
     background: transparent;
-    color: var(--muted);
-    font-size: 12px;
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    cursor: pointer;
-    transition: all 0.2s;
+    color: var(--md-on-surface-variant);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 20px;
     white-space: nowrap;
   }
-  .cat-chip.active {
-    border-color: rgba(124,106,255,0.6);
-    background: rgba(124,106,255,0.15);
-    color: var(--accent2);
+  .chip[aria-pressed="true"] {
+    background: var(--md-secondary-container);
+    color: var(--md-on-secondary-container);
+    border-color: transparent;
+  }
+  .chip__check { width: 20px; height: 20px; display: none; }
+  .chip[aria-pressed="true"] .chip__check { display: block; }
+  .chip__emoji { font-size: 18px; line-height: 1; }
+  .chip__count {
+    font-size: 13px;
+    font-weight: 400;
+    opacity: 0.75;
   }
 
-  /* メイン */
+  /* ---------- 一覧 ---------- */
   main {
-    position: relative;
-    z-index: 1;
-    padding: 16px 16px 170px;
+    padding: 8px 16px 200px;
   }
 
-  .empty-state {
-    text-align: center;
-    padding: 80px 20px;
-    color: var(--muted);
+  .list-meta {
+    padding: 8px 4px 12px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--md-on-surface-variant);
   }
-  .empty-state .moon { font-size: 48px; margin-bottom: 16px; }
-  .empty-state p { font-size: 14px; line-height: 1.8; }
 
-  /* 動画カード */
-  .video-grid {
+  .video-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
   }
 
-  .video-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
+  .card {
     display: flex;
     align-items: stretch;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
+    background: var(--md-surface-container-low);
+    border-radius: 16px;
+    overflow: hidden;
   }
-  .video-card:active { transform: scale(0.98); border-color: rgba(124,106,255,0.3); }
 
-  .thumb-wrap {
-    position: relative;
-    width: 120px;
-    flex-shrink: 0;
+  .card__main {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    min-width: 0;
+    padding: 0;
+    text-align: left;
   }
-  .thumb-wrap img {
+
+  .card__thumb {
+    position: relative;
+    width: 116px;
+    flex-shrink: 0;
+    background: var(--md-surface-container-highest);
+  }
+  .card__thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
-  .skip-badge {
+  .card__skip {
     position: absolute;
-    bottom: 6px;
     left: 6px;
-    background: rgba(0,0,0,0.75);
+    bottom: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.72);
     color: #fff;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    backdrop-filter: blur(4px);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
   }
+  .card__skip svg { width: 14px; height: 14px; }
 
-  .card-info {
+  .card__body {
     flex: 1;
-    padding: 12px 14px;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-width: 0;
+    gap: 8px;
+    padding: 12px 4px 12px 0;
   }
 
-  .card-title {
-    font-size: 13px;
+  .card__title {
+    font-size: 16px;
+    line-height: 22px;
     font-weight: 500;
-    line-height: 1.5;
+    color: var(--md-on-surface);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    color: var(--text);
   }
 
-  .card-meta {
+  .card__badges {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 8px;
-  }
-
-  .cat-tag {
-    font-size: 10px;
-    color: var(--accent2);
-    background: rgba(192,132,252,0.1);
-    border: 1px solid rgba(192,132,252,0.2);
-    padding: 2px 8px;
-    border-radius: 10px;
-  }
-
-  .card-actions {
-    display: flex;
+    flex-wrap: wrap;
     gap: 4px;
   }
-
-  .icon-btn {
-    width: 28px; height: 28px;
+  .badge {
+    font-size: 12px;
+    line-height: 16px;
+    padding: 3px 10px;
     border-radius: 8px;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    font-size: 14px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .icon-btn:active { background: rgba(255,255,255,0.08); color: var(--text); }
-
-  /* モーダル */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 200;
-    display: flex;
-    align-items: flex-end;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.25s;
-  }
-  .modal-overlay.open {
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  .modal {
-    width: 100%;
-    background: var(--surface2);
-    border-top-left-radius: 24px;
-    border-top-right-radius: 24px;
-    border-top: 1px solid var(--border);
-    padding: 20px 20px 40px;
-    transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
-    max-height: 90dvh;
-    overflow-y: auto;
-  }
-  .modal-overlay.open .modal {
-    transform: translateY(0);
-  }
-
-  .modal-handle {
-    width: 36px; height: 4px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 2px;
-    margin: 0 auto 20px;
-  }
-
-  .modal-title {
-    font-family: 'DM Serif Display', serif;
-    font-size: 20px;
-    color: var(--text);
-    margin-bottom: 20px;
-  }
-
-  .form-group {
-    margin-bottom: 16px;
-  }
-
-  label {
-    display: block;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-  }
-
-  input, select {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 14px;
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    padding: 12px 14px;
-    outline: none;
-    transition: border-color 0.2s;
-    -webkit-appearance: none;
-  }
-  input:focus, select:focus {
-    border-color: rgba(124,106,255,0.5);
-  }
-  input::placeholder { color: var(--muted); }
-
-  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-  .submit-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: none;
-    background: linear-gradient(135deg, #7c6aff, #c084fc);
-    color: #fff;
-    font-size: 15px;
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    margin-top: 8px;
-    transition: opacity 0.2s;
-  }
-  .submit-btn:active { opacity: 0.85; }
-
-  .cancel-btn {
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-size: 14px;
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    cursor: pointer;
-    margin-top: 8px;
-  }
-
-  /* 削除確認 */
-  .del-modal .modal-title { color: #f87171; }
-  .del-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    background: rgba(248,113,113,0.15);
-    border: 1px solid rgba(248,113,113,0.3);
-    color: #f87171;
-    font-size: 15px;
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    cursor: pointer;
-    margin-top: 8px;
-  }
-
-  /* カテゴリ管理 */
-  .cat-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-  .cat-item {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 14px;
-  }
-  .cat-item button {
-    background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer;
-  }
-
-  /* 再生トースト */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: rgba(30,30,45,0.95);
-    border: 1px solid rgba(124,106,255,0.3);
-    color: var(--text);
-    font-size: 13px;
-    padding: 10px 20px;
-    border-radius: 30px;
-    z-index: 300;
-    opacity: 0;
-    transition: all 0.3s;
+    background: var(--md-surface-container-high);
+    color: var(--md-on-surface-variant);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
-    backdrop-filter: blur(10px);
-    pointer-events: none;
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  .badge--channel {
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
   }
 
-  .count-label {
-    font-size: 11px;
-    color: var(--muted);
-    margin-bottom: 12px;
-    padding-left: 2px;
+  .card__menu {
+    align-self: center;
+    margin-right: 4px;
   }
 
-  /* 同期 / バックアップモーダル */
-  .sync-status {
-    display: inline-block;
-    font-size: 11px;
-    padding: 4px 12px;
-    border-radius: 12px;
-    margin-bottom: 16px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    letter-spacing: 0.04em;
+  /* ---------- 空状態 ---------- */
+  .empty-state {
+    text-align: center;
+    padding: 72px 24px;
+    color: var(--md-on-surface-variant);
   }
-  .sync-status.syncing { color: var(--accent2); border-color: rgba(192,132,252,0.35); }
-  .sync-status.ok      { color: #6ee7b7; border-color: rgba(110,231,183,0.35); background: rgba(110,231,183,0.06); }
-  .sync-status.err     { color: #f87171; border-color: rgba(248,113,113,0.35); background: rgba(248,113,113,0.06); }
+  .empty-state svg { width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.6; }
+  .empty-state p { font-size: 15px; line-height: 24px; }
 
-  .sync-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 22px 0 18px;
-  }
-
-  .section-label {
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-
-  .toggle-row {
+  /* ---------- FAB ---------- */
+  .fab {
+    position: fixed;
+    right: 16px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+    z-index: 35;
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: var(--md-primary-container);
+    color: var(--md-on-primary-container);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 6px 0 14px;
-    font-size: 13px;
-    color: var(--text);
+    justify-content: center;
+    box-shadow: 0 3px 8px var(--md-shadow);
   }
-  .toggle-row > label { margin: 0; text-transform: none; letter-spacing: 0; font-size: 13px; color: var(--text); }
+  .fab svg { width: 28px; height: 28px; }
+
+  /* ---------- 下部フィルタバー (チャンネル) ---------- */
+  .bottom-bar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    z-index: 30;
+    background: var(--md-surface-container);
+    border-top: 1px solid var(--md-outline-variant);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-bar__label {
+    padding: 8px 16px 0;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.4px;
+    color: var(--md-on-surface-variant);
+  }
+
+  /* ---------- ボトムシート ---------- */
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--md-scrim);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+
+  .sheet {
+    width: 100%;
+    max-width: 640px;
+    max-height: 92dvh;
+    overflow-y: auto;
+    background: var(--md-surface-container-low);
+    border-radius: 28px 28px 0 0;
+    padding: 0 24px calc(24px + env(safe-area-inset-bottom));
+    transform: translateY(100%);
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+    overscroll-behavior: contain;
+  }
+  .scrim.open .sheet { transform: translateY(0); }
+
+  .sheet__handle {
+    width: 32px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--md-outline-variant);
+    margin: 16px auto 8px;
+  }
+  .sheet__title {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 500;
+    padding: 8px 0 16px;
+  }
+  .sheet__text {
+    font-size: 14px;
+    line-height: 22px;
+    color: var(--md-on-surface-variant);
+    margin-bottom: 16px;
+  }
+
+  /* 中央ダイアログ (削除確認) */
+  .scrim--dialog { align-items: center; padding: 24px; }
+  .dialog {
+    width: 100%;
+    max-width: 400px;
+    background: var(--md-surface-container-high);
+    border-radius: 28px;
+    padding: 24px;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  .scrim.open .dialog { transform: scale(1); opacity: 1; }
+  .dialog__title { font-size: 22px; line-height: 28px; margin-bottom: 16px; }
+  .dialog__text { font-size: 14px; line-height: 20px; color: var(--md-on-surface-variant); margin-bottom: 24px; }
+  .dialog__actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+  /* ---------- ボタン ---------- */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    padding: 0 24px;
+    border-radius: 24px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 20px;
+  }
+  .btn svg { width: 20px; height: 20px; }
+  .btn--filled { background: var(--md-primary); color: var(--md-on-primary); }
+  .btn--tonal { background: var(--md-secondary-container); color: var(--md-on-secondary-container); }
+  .btn--outlined { border: 1px solid var(--md-outline); color: var(--md-primary); }
+  .btn--text { color: var(--md-primary); padding: 0 16px; }
+  .btn--danger { background: var(--md-error); color: var(--md-on-error); }
+  .btn--block { width: 100%; }
 
   .btn-row {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    margin: 6px 0 4px;
   }
+  .btn-row .btn { flex: 1; min-width: 140px; }
 
-  .mini-btn {
-    flex: 1;
-    min-width: 0;
-    padding: 10px 8px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 12px;
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    cursor: pointer;
-    transition: all 0.15s;
-    white-space: nowrap;
-  }
-  .mini-btn:active { background: var(--surface); }
-  .mini-btn.primary {
-    background: rgba(124,106,255,0.15);
-    border-color: rgba(124,106,255,0.4);
-    color: var(--accent2);
-  }
-
-  .json-area {
-    width: 100%;
-    min-height: 80px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 11px;
-    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
-    padding: 10px 12px;
-    resize: vertical;
-    margin-top: 8px;
-    outline: none;
-    -webkit-appearance: none;
-  }
-  .json-area:focus { border-color: rgba(124,106,255,0.5); }
-
-  .inline-select {
-    width: auto;
-    padding: 6px 10px;
-    font-size: 12px;
-  }
-
-  .warning {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.7;
-    margin-top: 18px;
-    padding: 10px 12px;
-    background: rgba(251,191,36,0.05);
-    border: 1px solid rgba(251,191,36,0.15);
-    border-radius: 8px;
-  }
-
-  /* 下部固定フィルタバー */
-  .filter-bar {
-    position: fixed;
-    left: 0; right: 0; bottom: 0;
-    z-index: 100;
-    background: rgba(13, 14, 20, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid var(--border);
-    padding: 8px 12px calc(4px + env(safe-area-inset-bottom));
-  }
-
-  /* タグ chip 行 (フィルタバー内) */
-  .filter-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
-  }
-  .filter-row:last-child { margin-bottom: 0; }
-  .filter-label {
-    flex-shrink: 0;
-    font-size: 13px;
-    color: var(--muted);
-    width: 18px;
-    text-align: center;
-  }
-
-  /* チャンネルタブ (アンダーラインスタイル) */
-  .channel-tabs {
-    display: flex;
-    gap: 2px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    margin-top: 4px;
-    padding-left: 26px;
-  }
-  .channel-tabs::-webkit-scrollbar { display: none; }
-  .channel-tab {
-    flex-shrink: 0;
+  /* シート下部のアクション */
+  .sheet__actions {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    padding: 8px 14px 10px;
-    min-width: 64px;
-    border: none;
-    background: transparent;
-    color: var(--muted);
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: color 0.18s, border-color 0.18s;
-  }
-  .channel-tab.active {
-    color: var(--accent2);
-    border-bottom-color: var(--accent2);
-  }
-  .channel-tab-icon {
-    font-size: 18px;
-    line-height: 1;
-    min-height: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .channel-tab-text {
-    font-size: 12px;
-    line-height: 1.2;
+    gap: 8px;
+    margin-top: 24px;
   }
 
-  /* チャンネル管理行の絵文字入力 */
-  .ch-icon {
-    width: 38px;
+  /* ---------- リスト行 (メニュー / 管理) ---------- */
+  .list-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    min-height: 56px;
+    padding: 8px 8px;
+    border-radius: 12px;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--md-on-surface);
+    text-align: left;
+  }
+  .list-row svg { width: 24px; height: 24px; color: var(--md-on-surface-variant); flex-shrink: 0; }
+  .list-row--danger, .list-row--danger svg { color: var(--md-error); }
+
+  .manage-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 56px;
+    padding: 4px 4px 4px 12px;
+    border-radius: 12px;
+    background: var(--md-surface-container);
+    margin-bottom: 8px;
+  }
+  /* 名前が長い場合は操作ボタンが次の行に折り返し、名前を省略しない */
+  .manage-row__name {
+    flex: 1 1 140px;
+    min-width: 0;
+    font-size: 15px;
+    line-height: 20px;
+    overflow-wrap: anywhere;
+  }
+  .manage-row__actions {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+  }
+  /* input[type="text"] のグローバル指定より詳細度を上げる */
+  .manage-row input.manage-row__icon {
+    flex: 0 0 48px;
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    min-height: 48px;
+    padding: 0;
     text-align: center;
-    font-size: 18px;
-    padding: 4px;
-    margin-right: 8px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
+    font-size: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--md-outline-variant);
+    background: var(--md-surface-container-lowest);
+    color: var(--md-on-surface);
     font-family: inherit;
   }
-  .cat-item.with-icon { gap: 0; }
-  .cat-item .name-text { flex: 1; }
+  .manage-row input.manage-row__icon:focus { padding: 0; border-width: 2px; }
 
-  /* 軸切替セグメント (管理モーダル用) */
-  .axis-segment {
-    display: flex;
-    gap: 6px;
-    background: var(--surface);
-    border: 1px solid var(--border);
+  /* ---------- 入力 (MD3 outlined 相当) ---------- */
+  .field { margin-bottom: 20px; }
+  .field__label {
+    display: block;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 500;
+    color: var(--md-on-surface-variant);
+    margin-bottom: 8px;
+  }
+  .field__hint { font-weight: 400; opacity: 0.8; }
+  .field__note {
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--md-on-surface-variant);
+    margin-top: 8px;
+    min-height: 18px;
+  }
+  .field__note--error { color: var(--md-error); }
+
+  input[type="text"], input[type="url"], select, textarea {
+    width: 100%;
+    min-height: 56px;
+    padding: 16px;
     border-radius: 12px;
-    padding: 4px;
-    margin: 0 0 10px;
+    border: 1px solid var(--md-outline);
+    background: var(--md-surface-container-lowest);
+    color: var(--md-on-surface);
+    font-family: inherit;
+    font-size: 16px; /* iOS のズーム防止 */
+    line-height: 24px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
   }
-  .axis-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    font-size: 12px;
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    padding: 8px 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.18s;
-    white-space: nowrap;
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--md-primary);
+    border-width: 2px;
+    padding: 15px;
   }
-  .axis-btn.active {
-    background: rgba(124,106,255,0.18);
-    color: var(--accent2);
-  }
-  .axis-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  input::placeholder, textarea::placeholder { color: var(--md-on-surface-variant); opacity: 0.7; }
 
-  /* チャンネル行 (select + ＋) */
-  .channel-row { display: flex; gap: 6px; align-items: stretch; }
-  .channel-row select { flex: 1; }
-  .channel-row .mini-btn { flex-shrink: 0; padding: 0 14px; }
-  .hint-muted { color: var(--muted); font-size: 11px; font-weight: 400; }
-  .fetch-hint { color: var(--accent2); font-size: 11px; font-weight: 400; margin-left: 6px; }
+  select {
+    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+    background-position: right 20px center, right 14px center;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 40px;
+  }
 
-  /* タグ複数選択 */
+  textarea {
+    min-height: 96px;
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    font-size: 13px;
+    line-height: 20px;
+    resize: vertical;
+  }
+
+  .field-inline { display: flex; gap: 8px; align-items: stretch; }
+  .field-inline select { flex: 1; }
+  .field-inline .icon-btn {
+    border: 1px solid var(--md-outline);
+    border-radius: 12px;
+    color: var(--md-primary);
+    align-self: stretch;
+    height: auto;
+  }
+
   .tag-picker {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    max-height: 140px;
+    gap: 8px;
+    max-height: 180px;
     overflow-y: auto;
-    padding: 4px 2px;
-  }
-  .tag-chip {
-    flex-shrink: 0;
-    padding: 6px 12px;
-    border-radius: 16px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    font-size: 12px;
-    font-family: 'Zen Kaku Gothic New', sans-serif;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .tag-chip.on {
-    border-color: rgba(192,132,252,0.5);
-    background: rgba(192,132,252,0.18);
-    color: var(--accent2);
   }
 
-  /* カードのチャンネル + タグバッジ行 */
-  .badge-row {
+  /* ---------- セグメントボタン ---------- */
+  .segmented {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
+    margin-bottom: 20px;
+  }
+  .segmented__btn {
     flex: 1;
-    min-width: 0;
-    overflow: hidden;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid var(--md-outline);
+    color: var(--md-on-surface);
+    font-size: 15px;
+    font-weight: 500;
   }
-  .channel-tag {
-    font-size: 10px;
-    color: var(--accent);
-    background: rgba(124,106,255,0.12);
-    border: 1px solid rgba(124,106,255,0.25);
-    padding: 2px 8px;
-    border-radius: 10px;
+  .segmented__btn:first-child { border-radius: 24px 0 0 24px; }
+  .segmented__btn:last-child { border-radius: 0 24px 24px 0; border-left: none; }
+  .segmented__btn[aria-pressed="true"] {
+    background: var(--md-secondary-container);
+    color: var(--md-on-secondary-container);
+  }
+  .segmented__btn svg { width: 20px; height: 20px; }
+
+  /* ---------- 同期ステータス ---------- */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 20px;
+    background: var(--md-surface-container-high);
+    color: var(--md-on-surface-variant);
+    margin-bottom: 16px;
+  }
+  .status svg { width: 18px; height: 18px; }
+  .status--ok { color: var(--md-success); }
+  .status--err { background: var(--md-error-container); color: var(--md-on-error-container); }
+
+  .divider {
+    height: 1px;
+    background: var(--md-outline-variant);
+    margin: 24px 0;
+  }
+  .section-label {
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    color: var(--md-on-surface-variant);
+    margin-bottom: 12px;
+  }
+  .note {
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--md-on-surface-variant);
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--md-tertiary-container);
+    color: var(--md-on-tertiary-container);
+    margin-top: 16px;
   }
 
-  /* 並び替えボタン (管理モーダル) */
-  .reorder-btns { display: flex; gap: 2px; }
-  .reorder-btns button {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    width: 26px;
-    height: 26px;
-    border-radius: 6px;
-    font-size: 11px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
+  /* ---------- スナックバー ---------- */
+  .snackbar {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: calc(96px + env(safe-area-inset-bottom));
+    z-index: 200;
+    margin: 0 auto;
+    max-width: 480px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    border-radius: 8px;
+    background: var(--md-inverse-surface);
+    color: var(--md-inverse-on-surface);
+    font-size: 14px;
+    line-height: 20px;
+    box-shadow: 0 3px 8px var(--md-shadow);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
   }
-  .reorder-btns button:disabled { opacity: 0.3; cursor: not-allowed; }
-  .reorder-btns button:not(:disabled):active { background: rgba(124,106,255,0.18); color: var(--accent2); }
+  .snackbar.show { opacity: 1; transform: translateY(0); }
 
-  /* スキップ秒プレビュー */
-  .skip-preview {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-    min-height: 16px;
-    letter-spacing: 0.02em;
+  @media (prefers-reduced-motion: reduce) {
+    * { transition-duration: 0.01ms !important; }
   }
-  .skip-preview.invalid { color: #f87171; }
 </style>
 </head>
 <body>
 
-<header>
-  <div class="header-top">
-    <div class="logo">睡眠 ASMR <span>おやすみリスト</span></div>
-    <div style="display:flex;gap:8px">
-      <button class="add-btn" onclick="openSyncModal()" title="同期 / バックアップ" style="font-size:16px">⚙</button>
-      <button class="add-btn" onclick="openManageModal()" title="タグ／チャンネル管理" style="font-size:16px">🏷</button>
-      <button class="add-btn" onclick="openAddModal()" title="動画追加">＋</button>
-    </div>
-  </div>
+<header class="app-bar">
+  <h1 class="app-bar__title">睡眠ASMR</h1>
+  <button class="touchable icon-btn" id="themeBtn" onclick="cycleTheme()" aria-label="テーマを切り替え"></button>
+  <button class="touchable icon-btn" onclick="openManageModal()" aria-label="タグとチャンネルを管理">
+    <svg viewBox="0 0 24 24"><path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"/></svg>
+  </button>
+  <button class="touchable icon-btn" onclick="openSyncModal()" aria-label="同期とバックアップ">
+    <svg viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+  </button>
 </header>
 
-<main id="main">
+<div class="chip-bar">
+  <div class="chip-scroller" id="tagFilterTabs" role="group" aria-label="タグで絞り込み"></div>
+</div>
+
+<main>
+  <div class="list-meta" id="listMeta"></div>
   <div class="empty-state" id="emptyState">
-    <div class="moon">🌙</div>
-    <p>まだ動画が登録されていません<br>＋ボタンから追加してみましょう</p>
+    <svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/></svg>
+    <p>まだ動画が登録されていません<br>右下の＋ボタンから追加できます</p>
   </div>
-  <div class="video-grid" id="videoGrid"></div>
+  <div class="video-list" id="videoGrid"></div>
 </main>
 
-<!-- 追加/編集モーダル -->
-<div class="modal-overlay" id="addModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title" id="modalTitle">動画を追加</div>
-    <div class="form-group">
-      <label>YouTube URL <span id="urlFetchHint" class="fetch-hint"></span></label>
-      <input type="url" id="inputUrl" placeholder="https://www.youtube.com/watch?v=..." inputmode="url" onchange="handleUrlChange()" onblur="handleUrlChange()">
+<button class="touchable fab" onclick="openAddModal()" aria-label="動画を追加">
+  <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+</button>
+
+<nav class="bottom-bar" id="filterBar" aria-label="チャンネルで絞り込み">
+  <div class="bottom-bar__label">チャンネル</div>
+  <div class="chip-scroller" id="channelFilterTabs" role="group"></div>
+</nav>
+
+<!-- 追加 / 編集シート -->
+<div class="scrim" id="addModal">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="sheet__handle"></div>
+    <div class="sheet__title" id="modalTitle">動画を追加</div>
+
+    <div class="field">
+      <label class="field__label" for="inputUrl">YouTube URL <span class="field__hint" id="urlFetchHint"></span></label>
+      <input type="url" id="inputUrl" placeholder="https://www.youtube.com/watch?v=..." inputmode="url"
+             onchange="handleUrlChange()" onblur="handleUrlChange()">
     </div>
-    <div class="form-group">
-      <label>動画タイトル</label>
+
+    <div class="field">
+      <label class="field__label" for="inputTitle">動画タイトル</label>
       <input type="text" id="inputTitle" placeholder="タイトルを入力">
     </div>
-    <div class="row2">
-      <div class="form-group">
-        <label>開始時刻 (skip)</label>
-        <input type="text" id="inputSkip" placeholder="例: 30 / 112 (=1分12秒)" inputmode="numeric" pattern="[0-9]*" oninput="updateSkipPreview()">
-        <div id="skipPreview" class="skip-preview">指定なし</div>
-      </div>
-      <div class="form-group">
-        <label>チャンネル</label>
-        <div class="channel-row">
-          <select id="inputChannel"></select>
-          <button type="button" class="mini-btn" onclick="addChannelInline()" title="新規チャンネル追加">＋</button>
-        </div>
+
+    <div class="field">
+      <label class="field__label" for="inputSkip">開始時刻 <span class="field__hint">(秒 または 分秒。例: 30 / 112)</span></label>
+      <input type="text" id="inputSkip" placeholder="例: 30 / 112" inputmode="numeric" pattern="[0-9]*" oninput="updateSkipPreview()">
+      <div class="field__note" id="skipPreview">指定なし</div>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="inputChannel">チャンネル</label>
+      <div class="field-inline">
+        <select id="inputChannel"></select>
+        <button type="button" class="touchable icon-btn" onclick="addChannelInline()" aria-label="新しいチャンネルを追加">
+          <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        </button>
       </div>
     </div>
-    <div class="form-group">
-      <label>タグ <span class="hint-muted">(複数選択可)</span></label>
+
+    <div class="field">
+      <span class="field__label">タグ <span class="field__hint">(複数選択可)</span></span>
       <div class="tag-picker" id="tagPicker"></div>
     </div>
-    <button class="submit-btn" onclick="saveVideo()">保存する</button>
-    <button class="cancel-btn" onclick="closeModal('addModal')">キャンセル</button>
-  </div>
-</div>
 
-<!-- 削除確認モーダル -->
-<div class="modal-overlay del-modal" id="delModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">本当に削除しますか？</div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:4px" id="delTargetTitle"></p>
-    <button class="del-btn" onclick="confirmDelete()">削除する</button>
-    <button class="cancel-btn" onclick="closeModal('delModal')">キャンセル</button>
-  </div>
-</div>
-
-<!-- タグ／チャンネル管理モーダル -->
-<div class="modal-overlay" id="manageModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">タグ／チャンネル管理</div>
-    <div class="axis-segment" id="manageSeg">
-      <button type="button" class="axis-btn active" data-kind="tag" onclick="setManageKind('tag')">🏷 タグ</button>
-      <button type="button" class="axis-btn" data-kind="channel" onclick="setManageKind('channel')">👥 チャンネル</button>
+    <div class="sheet__actions">
+      <button class="touchable btn btn--filled btn--block" onclick="saveVideo()">保存する</button>
+      <button class="touchable btn btn--text btn--block" onclick="closeModal('addModal')">キャンセル</button>
     </div>
-    <div class="cat-list" id="manageList"></div>
-    <div class="form-group">
-      <label id="manageInputLabel">新しいタグ</label>
+  </div>
+</div>
+
+<!-- カードのメニュー -->
+<div class="scrim" id="cardMenu">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="cardMenuTitle">
+    <div class="sheet__handle"></div>
+    <div class="sheet__title" id="cardMenuTitle"></div>
+    <button class="touchable list-row" onclick="menuPlay()">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>再生する
+    </button>
+    <button class="touchable list-row" onclick="menuEdit()">
+      <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>編集する
+    </button>
+    <button class="touchable list-row list-row--danger" onclick="menuDelete()">
+      <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>削除する
+    </button>
+    <div class="sheet__actions">
+      <button class="touchable btn btn--text btn--block" onclick="closeModal('cardMenu')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- 削除確認ダイアログ -->
+<div class="scrim scrim--dialog" id="delModal">
+  <div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="delDialogTitle">
+    <div class="dialog__title" id="delDialogTitle">削除しますか？</div>
+    <div class="dialog__text" id="delTargetTitle"></div>
+    <div class="dialog__actions">
+      <button class="touchable btn btn--text" onclick="closeModal('delModal')">キャンセル</button>
+      <button class="touchable btn btn--danger" onclick="confirmDelete()">削除</button>
+    </div>
+  </div>
+</div>
+
+<!-- タグ / チャンネル管理シート -->
+<div class="scrim" id="manageModal">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="manageTitle">
+    <div class="sheet__handle"></div>
+    <div class="sheet__title" id="manageTitle">タグ / チャンネル管理</div>
+
+    <div class="segmented" id="manageSeg">
+      <button type="button" class="touchable segmented__btn" data-kind="tag" aria-pressed="true" onclick="setManageKind('tag')">
+        <svg viewBox="0 0 24 24"><path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"/></svg>タグ
+      </button>
+      <button type="button" class="touchable segmented__btn" data-kind="channel" aria-pressed="false" onclick="setManageKind('channel')">
+        <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>チャンネル
+      </button>
+    </div>
+
+    <div id="manageList"></div>
+
+    <div class="field" style="margin-top:20px">
+      <label class="field__label" id="manageInputLabel" for="manageInput">新しいタグ</label>
       <input type="text" id="manageInput" placeholder="例: 囁き系、環境音...">
     </div>
-    <button class="submit-btn" onclick="addManageItem()">追加する</button>
-    <button class="cancel-btn" onclick="closeModal('manageModal')">閉じる</button>
+
+    <div class="sheet__actions">
+      <button class="touchable btn btn--filled btn--block" onclick="addManageItem()">追加する</button>
+      <button class="touchable btn btn--text btn--block" onclick="closeModal('manageModal')">閉じる</button>
+    </div>
   </div>
 </div>
 
-<!-- 同期 / バックアップモーダル -->
-<div class="modal-overlay" id="syncModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <div class="modal-title">同期 / バックアップ</div>
+<!-- 同期 / バックアップシート -->
+<div class="scrim" id="syncModal">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="syncTitle">
+    <div class="sheet__handle"></div>
+    <div class="sheet__title" id="syncTitle">同期 / バックアップ</div>
 
     <div class="section-label">クラウド同期 (Firebase)</div>
-    <div id="syncStatus" class="sync-status">接続中…</div>
-
-    <p style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:14px">
+    <div id="syncStatus" class="status">接続中…</div>
+    <p class="sheet__text">
       リストはクラウドに自動保存されます。どの端末でこのページを開いても同じ内容が表示され、端末ごとの設定は不要です。
     </p>
 
     <div class="btn-row">
-      <button class="mini-btn" onclick="handleCloudPull()">クラウドから再取得</button>
-      <button class="mini-btn primary" onclick="handleCloudPush()">この端末の内容を送信</button>
+      <button class="touchable btn btn--outlined" onclick="handleCloudPull()">クラウドから再取得</button>
+      <button class="touchable btn btn--tonal" onclick="handleCloudPush()">この端末の内容を送信</button>
     </div>
 
-    <div class="sync-divider"></div>
+    <div class="divider"></div>
 
     <div class="section-label">バックアップ (手動 Export / Import)</div>
 
-    <button class="mini-btn" style="width:100%" onclick="exportJson()">JSON をダウンロード</button>
-    <textarea id="exportPreview" class="json-area" placeholder="エクスポート結果がここに表示されます (コピー可)" readonly></textarea>
+    <button class="touchable btn btn--outlined btn--block" onclick="exportJson()">
+      <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z"/></svg>JSON をダウンロード
+    </button>
+    <textarea id="exportPreview" placeholder="エクスポート結果がここに表示されます (コピー可)" readonly style="margin-top:12px"></textarea>
 
-    <div style="margin-top:18px">
-      <label style="display:block;margin-bottom:6px">JSON インポート</label>
+    <div class="field" style="margin-top:24px">
+      <label class="field__label" for="importText">JSON インポート</label>
       <input type="file" id="importFile" accept="application/json,.json" style="display:none">
-      <textarea id="importText" class="json-area" placeholder="ここに JSON を貼り付け、または下のボタンでファイル選択..."></textarea>
-      <div class="toggle-row" style="padding:10px 0 6px">
-        <label>適用モード</label>
-        <select id="importMode" class="inline-select">
-          <option value="replace">置き換え</option>
-          <option value="merge">マージ (id基準)</option>
-        </select>
-      </div>
-      <div class="btn-row">
-        <button class="mini-btn" onclick="document.getElementById('importFile').click()">ファイルを選択</button>
-        <button class="mini-btn primary" onclick="importJsonFromText()">テキストから取り込む</button>
-      </div>
+      <textarea id="importText" placeholder="ここに JSON を貼り付け、または下のボタンでファイル選択..."></textarea>
     </div>
 
-    <div class="warning">
-      ⚠ 同じURLを開けば誰でも同じリストを見られます。公開の場でURLを共有しないでください。
+    <div class="field">
+      <label class="field__label" for="importMode">適用モード</label>
+      <select id="importMode">
+        <option value="replace">置き換え</option>
+        <option value="merge">マージ (id基準)</option>
+      </select>
     </div>
 
-    <button class="cancel-btn" onclick="closeModal('syncModal')">閉じる</button>
+    <div class="btn-row">
+      <button class="touchable btn btn--outlined" onclick="document.getElementById('importFile').click()">ファイルを選択</button>
+      <button class="touchable btn btn--tonal" onclick="importJsonFromText()">テキストから取り込む</button>
+    </div>
+
+    <div class="note">
+      同じURLを開けば誰でも同じリストを見られます。公開の場でURLを共有しないでください。
+    </div>
+
+    <div class="sheet__actions">
+      <button class="touchable btn btn--text btn--block" onclick="closeModal('syncModal')">閉じる</button>
+    </div>
   </div>
 </div>
 
-<div class="filter-bar" id="filterBar">
-  <div class="filter-row" id="tagFilterRow">
-    <div class="filter-label">🏷</div>
-    <div class="category-scroll" id="tagFilterTabs"></div>
-  </div>
-  <div class="channel-tabs" id="channelFilterTabs"></div>
-</div>
-
-<div class="toast" id="toast"></div>
+<div class="snackbar" id="toast" role="status" aria-live="polite"></div>
 
 <!-- Firebase SDK (compat build) -->
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -873,6 +950,7 @@ const CHANNELS_KEY = 'asmr_channels_v3';
 const STORAGE_KEY_V2 = 'asmr_videos_v2';
 const CAT_KEY_V2 = 'asmr_cats_v2';
 const META_KEY = 'asmr_meta_v1';
+const THEME_KEY = 'asmr_theme_v1';
 const LEGACY_SYNC_KEY = 'asmr_sync_v1';
 const PUSH_DEBOUNCE_MS = 1500;
 
@@ -889,6 +967,60 @@ const CLOUD_COLLECTION = 'asmr_list';
 const CLOUD_DOC = 'main';
 const FIREBASE_SDK_FALLBACK = '9.23.0';
 const DEFAULT_TAGS = ["癒し系","囁き系","環境音","バイノーラル","その他"];
+
+const ICONS = {
+  check: '<path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>',
+  play: '<path d="M8 5v14l11-7z"/>',
+  more: '<path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>',
+  up: '<path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>',
+  down: '<path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>',
+  close: '<path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>',
+  cloudDone: '<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM10 17l-3.5-3.5 1.41-1.41L10 14.17l4.59-4.58L16 11l-6 6z"/>',
+  cloudOff: '<path d="M19.35 10.04C18.67 6.59 15.64 4 12 4c-1.48 0-2.85.43-4.01 1.17l1.46 1.46C10.21 6.23 11.08 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3 0 1.13-.64 2.11-1.56 2.62l1.45 1.45C23.16 18.16 24 16.68 24 15c0-2.64-2.05-4.78-4.65-4.96zM3 5.27l2.75 2.74C2.56 8.15 0 10.77 0 14c0 3.31 2.69 6 6 6h11.73l2 2L21 20.73 4.27 4 3 5.27z"/>',
+  sync: '<path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>',
+  light: '<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58a.996.996 0 1 0-1.41 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37a.996.996 0 1 0-1.41 1.41l1.06 1.06c.39.39 1.03.39 1.41 0a.996.996 0 0 0 0-1.41l-1.06-1.06zm1.06-10.96a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36a.996.996 0 0 0 0-1.41.996.996 0 0 0-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>',
+  dark: '<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>',
+  auto: '<path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 18V4a8 8 0 0 1 0 16z"/>'
+};
+
+function svgIcon(name, cls) {
+  return `<svg viewBox="0 0 24 24"${cls ? ` class="${cls}"` : ''}>${ICONS[name]}</svg>`;
+}
+
+/* ---------- テーマ (system / light / dark) ---------- */
+const THEME_ORDER = ['system', 'light', 'dark'];
+const THEME_LABEL = { system: '端末の設定に従います', light: 'ライトモード', dark: 'ダークモード' };
+let themeMode = localStorage.getItem(THEME_KEY) || 'system';
+
+function effectiveTheme() {
+  if (themeMode !== 'system') return themeMode;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function applyTheme() {
+  const root = document.documentElement;
+  if (themeMode === 'system') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', themeMode);
+
+  const btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.innerHTML = svgIcon(themeMode === 'system' ? 'auto' : themeMode === 'light' ? 'light' : 'dark');
+    btn.title = THEME_LABEL[themeMode];
+  }
+  const meta = document.getElementById('themeColorMeta');
+  if (meta) meta.content = effectiveTheme() === 'dark' ? '#211f26' : '#f3edf7';
+}
+
+function cycleTheme() {
+  themeMode = THEME_ORDER[(THEME_ORDER.indexOf(themeMode) + 1) % THEME_ORDER.length];
+  localStorage.setItem(THEME_KEY, themeMode);
+  applyTheme();
+  showToast(THEME_LABEL[themeMode]);
+}
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+  if (themeMode === 'system') applyTheme();
+});
 
 function migrateV2ToV3() {
   if (localStorage.getItem(STORAGE_KEY) !== null) return;
@@ -961,6 +1093,7 @@ let tagFilter = '';
 let channelFilter = '';
 let editingId = null;
 let deletingId = null;
+let menuTargetId = null;
 let pushTimer = null;
 let manageKind = 'tag';
 let selectedTags = [];
@@ -1074,7 +1207,7 @@ function onCloudSnapshot(snap) {
   } else if (remoteTs > localTs) {
     applyRemote(r);
     setStatus('ok');
-    showToast('クラウドから同期しました 🌙');
+    showToast('クラウドから同期しました');
   } else if (localTs > remoteTs) {
     pushToCloud().catch(e => setStatus('err', e.message));
   } else {
@@ -1129,21 +1262,20 @@ function setStatus(kind, msg) {
   if (kind === 'ok') lastSyncedAt = new Date();
   const el = document.getElementById('syncStatus');
   if (!el) return;
-  el.classList.remove('ok', 'err', 'syncing');
+  el.classList.remove('status--ok', 'status--err');
   if (kind === 'syncing') {
-    el.classList.add('syncing');
-    el.textContent = msg || '同期中…';
+    el.innerHTML = svgIcon('sync') + (msg || '同期中…');
   } else if (kind === 'ok') {
-    el.classList.add('ok');
+    el.classList.add('status--ok');
     const t = lastSyncedAt || new Date();
     const hh = String(t.getHours()).padStart(2, '0');
     const mm = String(t.getMinutes()).padStart(2, '0');
-    el.textContent = `同期済み ${hh}:${mm}`;
+    el.innerHTML = svgIcon('cloudDone') + `同期済み ${hh}:${mm}`;
   } else if (kind === 'err') {
-    el.classList.add('err');
-    el.textContent = `エラー: ${msg || ''}`.slice(0, 80);
+    el.classList.add('status--err');
+    el.innerHTML = svgIcon('cloudOff') + escHtml(`エラー: ${msg || ''}`.slice(0, 80));
   } else {
-    el.textContent = cloudReady ? '待機中' : '接続中…';
+    el.innerHTML = svgIcon('sync') + (cloudReady ? '待機中' : '接続中…');
   }
 }
 
@@ -1161,7 +1293,7 @@ async function handleCloudPull() {
     if (!snap.exists) { showToast('クラウドにまだデータがありません'); setStatus(null); return; }
     applyRemote(snap.data());
     setStatus('ok');
-    showToast('クラウドから取得しました 🌙');
+    showToast('クラウドから取得しました');
   } catch (e) {
     setStatus('err', e.message);
     showToast('取得失敗: ' + e.message);
@@ -1289,20 +1421,26 @@ function updateSkipPreview() {
   const parsed = parseSkipInput(inp.value);
   if (parsed === null) {
     out.textContent = '形式が不正です';
-    out.classList.add('invalid');
+    out.classList.add('field__note--error');
   } else {
     out.textContent = parsed === 0 ? '指定なし' : `= ${formatSkipReadable(parsed)}`;
-    out.classList.remove('invalid');
+    out.classList.remove('field__note--error');
   }
 }
 
-function playVideo(v) {
-  const id = extractVideoId(v.url);
-  if (!id) { showToast('URLが無効です'); return; }
+function findVideo(id) {
+  return videos.find(v => v.id === id);
+}
+
+function playVideo(id) {
+  const v = findVideo(id);
+  if (!v) return;
+  const vid = extractVideoId(v.url);
+  if (!vid) { showToast('URLが無効です'); return; }
   const skip = parseInt(v.skip) || 0;
-  const ytUrl = `https://www.youtube.com/watch?v=${id}${skip > 0 ? `&t=${skip}` : ''}`;
-  showToast(`${skip > 0 ? formatSkip(skip)+'から' : ''}再生します 🎧`);
-  setTimeout(() => { window.location.href = ytUrl; }, 500);
+  const ytUrl = `https://www.youtube.com/watch?v=${vid}${skip > 0 ? `&t=${skip}` : ''}`;
+  showToast(`${skip > 0 ? formatSkip(skip) + 'から' : ''}再生します`);
+  setTimeout(() => { window.location.href = ytUrl; }, 400);
 }
 
 function videoMatchesFilter(v) {
@@ -1316,38 +1454,56 @@ function renderFilterTabs() {
   renderChannelFilterRow();
 }
 
+function chipHtml({ label, count, emoji, active, onclick }) {
+  return `<button class="touchable chip" aria-pressed="${active}" onclick="${onclick}">` +
+    svgIcon('check', 'chip__check') +
+    (emoji ? `<span class="chip__emoji">${escHtml(emoji)}</span>` : '') +
+    `<span>${escHtml(label)}</span>` +
+    `<span class="chip__count">${count}</span>` +
+  `</button>`;
+}
+
 function renderTagFilterRow() {
-  const row = document.getElementById('tagFilterRow');
-  if (!tags.length) { row.style.display = 'none'; return; }
-  row.style.display = 'flex';
   const tabs = document.getElementById('tagFilterTabs');
   const baseFilter = v => !channelFilter || v.channel === channelFilter;
-  const allCount = videos.filter(baseFilter).length;
-  const entries = [['', `すべて (${allCount})`], ...tags.map(name => {
-    const n = videos.filter(v => baseFilter(v) && Array.isArray(v.tags) && v.tags.includes(name)).length;
-    return [name, `${name} (${n})`];
-  })];
-  tabs.innerHTML = entries.map(([val, label], idx) =>
-    `<button class="cat-chip ${tagFilter === val ? 'active' : ''}" onclick="setTagFilterByIndex(${idx})">${escHtml(label)}</button>`
-  ).join('');
+  const entries = [{ name: '', label: 'すべて', count: videos.filter(baseFilter).length }];
+  tags.forEach(name => {
+    entries.push({
+      name,
+      label: name,
+      count: videos.filter(v => baseFilter(v) && Array.isArray(v.tags) && v.tags.includes(name)).length
+    });
+  });
+  tabs.innerHTML = entries.map((e, idx) => chipHtml({
+    label: e.label,
+    count: e.count,
+    active: tagFilter === e.name,
+    onclick: `setTagFilterByIndex(${idx})`
+  })).join('');
 }
 
 function renderChannelFilterRow() {
+  const bar = document.getElementById('filterBar');
   const tabs = document.getElementById('channelFilterTabs');
-  if (!channels.length) { tabs.style.display = 'none'; return; }
-  tabs.style.display = 'flex';
+  if (!channels.length) { bar.style.display = 'none'; return; }
+  bar.style.display = '';
   const baseFilter = v => !tagFilter || (Array.isArray(v.tags) && v.tags.includes(tagFilter));
-  const allCount = videos.filter(baseFilter).length;
-  const entries = [{ name: '', icon: '', label: `すべて (${allCount})` }, ...channels.map(c => {
-    const n = videos.filter(v => baseFilter(v) && v.channel === c.name).length;
-    return { name: c.name, icon: c.icon || '', label: `${c.name} (${n})` };
-  })];
-  tabs.innerHTML = entries.map((e, idx) =>
-    `<button class="channel-tab ${channelFilter === e.name ? 'active' : ''}" onclick="setChannelFilterByIndex(${idx})">` +
-      `<span class="channel-tab-icon">${escHtml(e.icon)}</span>` +
-      `<span class="channel-tab-text">${escHtml(e.label)}</span>` +
-    `</button>`
-  ).join('');
+  const entries = [{ name: '', label: 'すべて', emoji: '', count: videos.filter(baseFilter).length }];
+  channels.forEach(c => {
+    entries.push({
+      name: c.name,
+      label: c.name,
+      emoji: c.icon || '',
+      count: videos.filter(v => baseFilter(v) && v.channel === c.name).length
+    });
+  });
+  tabs.innerHTML = entries.map((e, idx) => chipHtml({
+    label: e.label,
+    count: e.count,
+    emoji: e.emoji,
+    active: channelFilter === e.name,
+    onclick: `setChannelFilterByIndex(${idx})`
+  })).join('');
 }
 
 function setTagFilterByIndex(idx) {
@@ -1366,43 +1522,80 @@ function setChannelFilterByIndex(idx) {
 function renderVideos() {
   const grid = document.getElementById('videoGrid');
   const empty = document.getElementById('emptyState');
+  const metaEl = document.getElementById('listMeta');
   const filtered = videos.filter(videoMatchesFilter);
+
+  const filterLabels = [tagFilter, channelFilter].filter(Boolean);
+  metaEl.textContent = videos.length === 0 ? ''
+    : filterLabels.length
+      ? `${filtered.length}件 / 全${videos.length}件（${filterLabels.join(' × ')}）`
+      : `${videos.length}件`;
 
   if (filtered.length === 0) {
     grid.innerHTML = '';
     empty.style.display = 'block';
+    empty.querySelector('p').innerHTML = videos.length === 0
+      ? 'まだ動画が登録されていません<br>右下の＋ボタンから追加できます'
+      : '条件に合う動画がありません<br>フィルタを変えてみてください';
     return;
   }
   empty.style.display = 'none';
 
   grid.innerHTML = filtered.map(v => {
-    const id = extractVideoId(v.url);
+    const vid = extractVideoId(v.url);
     const skip = formatSkip(parseInt(v.skip));
     const tagList = Array.isArray(v.tags) ? v.tags : [];
-    const tagBadges = tagList.map(t => `<div class="cat-tag">${escHtml(t)}</div>`).join('');
-    const chBadge = v.channel ? `<div class="channel-tag">${escHtml(v.channel)}</div>` : '';
+    const badges = (v.channel ? `<span class="badge badge--channel">${escHtml(v.channel)}</span>` : '')
+      + tagList.map(t => `<span class="badge">${escHtml(t)}</span>`).join('');
     return `
-    <div class="video-card" onclick='playVideo(${JSON.stringify(v).replace(/'/g, "&#39;")})'>
-      <div class="thumb-wrap">
-        <img src="${thumbUrl(id)}" alt="" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%2290%22><rect width=%22120%22 height=%2290%22 fill=%22%231a1b26%22/></svg>'">
-        ${skip ? `<div class="skip-badge">▶ ${skip}〜</div>` : ''}
-      </div>
-      <div class="card-info">
-        <div class="card-title">${escHtml(v.title || '（タイトルなし）')}</div>
-        <div class="card-meta">
-          <div class="badge-row">${chBadge}${tagBadges}</div>
-          <div class="card-actions" onclick="event.stopPropagation()">
-            <button class="icon-btn" onclick="openEditModal('${v.id}')" title="編集">✏️</button>
-            <button class="icon-btn" onclick="openDelModal('${v.id}')" title="削除">🗑</button>
-          </div>
+    <article class="card">
+      <button class="touchable card__main" onclick="playVideo('${escHtml(v.id)}')" aria-label="${escHtml(v.title || 'タイトルなし')}を再生">
+        <div class="card__thumb">
+          <img src="${thumbUrl(vid)}" alt="" loading="lazy"
+               onerror="this.style.visibility='hidden'">
+          ${skip ? `<span class="card__skip">${svgIcon('play')}${skip}</span>` : ''}
         </div>
-      </div>
-    </div>`;
+        <div class="card__body">
+          <div class="card__title">${escHtml(v.title || '（タイトルなし）')}</div>
+          <div class="card__badges">${badges}</div>
+        </div>
+      </button>
+      <button class="touchable icon-btn card__menu" onclick="openCardMenu('${escHtml(v.id)}')" aria-label="この動画のメニュー">
+        ${svgIcon('more')}
+      </button>
+    </article>`;
   }).join('');
 }
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* ---------- カードのメニュー ---------- */
+function openCardMenu(id) {
+  const v = findVideo(id);
+  if (!v) return;
+  menuTargetId = id;
+  document.getElementById('cardMenuTitle').textContent = v.title || '（タイトルなし）';
+  openModal('cardMenu');
+}
+
+function menuPlay() {
+  const id = menuTargetId;
+  closeModal('cardMenu');
+  playVideo(id);
+}
+
+function menuEdit() {
+  const id = menuTargetId;
+  closeModal('cardMenu');
+  openEditModal(id);
+}
+
+function menuDelete() {
+  const id = menuTargetId;
+  closeModal('cardMenu');
+  openDelModal(id);
 }
 
 function renderChannelSelect() {
@@ -1416,12 +1609,13 @@ function renderChannelSelect() {
 function renderTagPicker() {
   const wrap = document.getElementById('tagPicker');
   if (!tags.length) {
-    wrap.innerHTML = '<div class="hint-muted" style="font-size:12px">タグがありません。🏷ボタンから追加できます</div>';
+    wrap.innerHTML = '<div class="field__note">タグがありません。上部の🏷ボタンから追加できます</div>';
     return;
   }
   wrap.innerHTML = tags.map(t => {
     const on = selectedTags.includes(t);
-    return `<button type="button" class="tag-chip ${on ? 'on' : ''}" data-tag="${escHtml(t)}" onclick="toggleTagPick(this)">${escHtml(t)}</button>`;
+    return `<button type="button" class="touchable chip" aria-pressed="${on}" data-tag="${escHtml(t)}" onclick="toggleTagPick(this)">` +
+      svgIcon('check', 'chip__check') + `<span>${escHtml(t)}</span></button>`;
   }).join('');
 }
 
@@ -1430,7 +1624,7 @@ function toggleTagPick(btn) {
   const i = selectedTags.indexOf(t);
   if (i >= 0) selectedTags.splice(i, 1);
   else selectedTags.push(t);
-  btn.classList.toggle('on');
+  btn.setAttribute('aria-pressed', String(i < 0));
 }
 
 function addChannelInline() {
@@ -1439,6 +1633,7 @@ function addChannelInline() {
   if (!channels.some(c => c.name === name)) {
     channels.push({ name, icon: '' });
     save();
+    renderFilterTabs();
   }
   selectedChannel = name;
   renderChannelSelect();
@@ -1465,11 +1660,12 @@ async function handleUrlChange() {
       if (!channels.some(c => c.name === name)) {
         channels.push({ name, icon: '' });
         save();
+        renderFilterTabs();
       }
       selectedChannel = name;
       renderChannelSelect();
     }
-    hint.textContent = '✓';
+    hint.textContent = '取得しました';
     setTimeout(() => { if (myToken === oembedToken) hint.textContent = ''; }, 1500);
   } catch {
     if (myToken === oembedToken) hint.textContent = '';
@@ -1492,7 +1688,7 @@ function openAddModal() {
 }
 
 function openEditModal(id) {
-  const v = videos.find(x => x.id === id);
+  const v = findVideo(id);
   if (!v) return;
   editingId = id;
   document.getElementById('modalTitle').textContent = '動画を編集';
@@ -1530,12 +1726,12 @@ function saveVideo() {
   closeModal('addModal');
   renderFilterTabs();
   renderVideos();
-  showToast(editingId ? '更新しました' : '追加しました 🌙');
+  showToast(editingId ? '更新しました' : '追加しました');
 }
 
 function openDelModal(id) {
   deletingId = id;
-  const v = videos.find(x => x.id === id);
+  const v = findVideo(id);
   document.getElementById('delTargetTitle').textContent = v?.title || '（タイトルなし）';
   openModal('delModal');
 }
@@ -1556,8 +1752,8 @@ function openManageModal() {
 
 function setManageKind(kind) {
   manageKind = kind;
-  document.querySelectorAll('#manageSeg .axis-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.kind === kind);
+  document.querySelectorAll('#manageSeg .segmented__btn').forEach(b => {
+    b.setAttribute('aria-pressed', String(b.dataset.kind === kind));
   });
   document.getElementById('manageInputLabel').textContent = kind === 'tag' ? '新しいタグ' : '新しいチャンネル';
   document.getElementById('manageInput').placeholder = kind === 'tag' ? '例: 囁き系、環境音...' : '例: チャンネル名';
@@ -1575,31 +1771,26 @@ function renderManageList() {
   const items = manageItems();
   const list = document.getElementById('manageList');
   if (!items.length) {
-    list.innerHTML = '<div class="hint-muted" style="font-size:12px;padding:8px 0">まだ登録がありません</div>';
+    list.innerHTML = '<div class="field__note">まだ登録がありません</div>';
     return;
   }
-  if (manageKind === 'channel') {
-    list.innerHTML = items.map((c, i) => `
-      <div class="cat-item with-icon">
-        <input class="ch-icon" type="text" value="${escHtml(c.icon || '')}" placeholder="🎙" oninput="updateChannelIcon(${i}, this.value)">
-        <span class="name-text">${escHtml(c.name)}</span>
-        <div class="reorder-btns">
-          <button onclick="moveManageItem(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="上へ">▲</button>
-          <button onclick="moveManageItem(${i}, 1)" ${i === items.length - 1 ? 'disabled' : ''} title="下へ">▼</button>
-          <button onclick="deleteManageItem(${i})" title="削除">×</button>
-        </div>
-      </div>`).join('');
-  } else {
-    list.innerHTML = items.map((name, i) => `
-      <div class="cat-item">
-        <span>${escHtml(name)}</span>
-        <div class="reorder-btns">
-          <button onclick="moveManageItem(${i}, -1)" ${i === 0 ? 'disabled' : ''} title="上へ">▲</button>
-          <button onclick="moveManageItem(${i}, 1)" ${i === items.length - 1 ? 'disabled' : ''} title="下へ">▼</button>
-          <button onclick="deleteManageItem(${i})" title="削除">×</button>
-        </div>
-      </div>`).join('');
-  }
+  list.innerHTML = items.map((item, i) => {
+    const isTag = manageKind === 'tag';
+    const name = isTag ? item : item.name;
+    const iconInput = isTag ? '' :
+      `<input class="manage-row__icon" type="text" value="${escHtml(item.icon || '')}" placeholder="🎙"
+              aria-label="${escHtml(name)}のアイコン" oninput="updateChannelIcon(${i}, this.value)">`;
+    return `
+      <div class="manage-row">
+        ${iconInput}
+        <span class="manage-row__name">${escHtml(name)}</span>
+        <span class="manage-row__actions">
+          <button class="touchable icon-btn" onclick="moveManageItem(${i}, -1)" ${i === 0 ? 'disabled style="opacity:.3"' : ''} aria-label="${escHtml(name)}を上へ">${svgIcon('up')}</button>
+          <button class="touchable icon-btn" onclick="moveManageItem(${i}, 1)" ${i === items.length - 1 ? 'disabled style="opacity:.3"' : ''} aria-label="${escHtml(name)}を下へ">${svgIcon('down')}</button>
+          <button class="touchable icon-btn" onclick="deleteManageItem(${i})" aria-label="${escHtml(name)}を削除">${svgIcon('close')}</button>
+        </span>
+      </div>`;
+  }).join('');
 }
 
 function updateChannelIcon(i, value) {
@@ -1632,13 +1823,16 @@ function deleteManageItem(i) {
   const entry = items[i];
   const name = manageKind === 'tag' ? entry : (entry && entry.name) || '';
   if (isItemInUse(name)) {
-    showToast(manageKind === 'tag' ? 'この動画が使用中のタグは削除できません' : 'この動画が使用中のチャンネルは削除できません');
+    showToast(manageKind === 'tag' ? '使用中のタグは削除できません' : '使用中のチャンネルは削除できません');
     return;
   }
   items.splice(i, 1);
+  if (manageKind === 'tag' && tagFilter === name) tagFilter = '';
+  if (manageKind === 'channel' && channelFilter === name) channelFilter = '';
   save();
   renderManageList();
   renderFilterTabs();
+  renderVideos();
 }
 
 function moveManageItem(i, dir) {
@@ -1661,11 +1855,17 @@ function closeModal(id) {
   document.body.style.overflow = '';
 }
 
-// オーバーレイタップで閉じる
-document.querySelectorAll('.modal-overlay').forEach(el => {
+// 背景タップで閉じる
+document.querySelectorAll('.scrim').forEach(el => {
   el.addEventListener('click', e => {
     if (e.target === el) closeModal(el.id);
   });
+});
+
+// Esc キーで閉じる (デスクトップ)
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.scrim.open').forEach(el => closeModal(el.id));
 });
 
 let toastTimer;
@@ -1674,7 +1874,7 @@ function showToast(msg) {
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
 // インポート用ファイル選択
@@ -1691,6 +1891,7 @@ document.getElementById('importFile').addEventListener('change', ev => {
 });
 
 // 初期表示 (ローカルキャッシュを即描画してからクラウドに接続)
+applyTheme();
 renderFilterTabs();
 renderVideos();
 initCloud();
